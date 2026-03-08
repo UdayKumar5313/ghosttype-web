@@ -21,10 +21,37 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const messagesRef = database.ref("clipboard");
 
+const SECURITY_KEY = "ghost123";   // change this key
+
+
+function unlock(){
+
+let userKey = document.getElementById("keyInput").value;
+
+if(userKey === SECURITY_KEY){
+
+document.getElementById("loginBox").style.display="none";
+
+document.getElementById("app").style.display="block";
+
+startListening();
+
+}else{
+
+document.getElementById("loginStatus").innerText="Wrong key";
+
+}
+
+}
+
+
+
 function sendText(){
 
-let device = document.getElementById("deviceName").value || "Unknown Device";
+let device = document.getElementById("deviceName").value || "Unknown";
+
 let text = document.getElementById("textInput").value;
+
 let time = new Date().toLocaleTimeString();
 
 messagesRef.push({
@@ -34,13 +61,19 @@ time:time
 });
 
 document.getElementById("textInput").value="";
+
 }
+
+
+
+function startListening(){
 
 messagesRef.on("child_added", function(snapshot){
 
 let data = snapshot.val();
 
 let div = document.createElement("div");
+
 div.className="message";
 
 div.innerHTML =
@@ -49,3 +82,5 @@ div.innerHTML =
 document.getElementById("messages").prepend(div);
 
 });
+
+}
