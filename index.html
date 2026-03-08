@@ -1,45 +1,39 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-
-<meta charset="UTF-8">
-<title>GhostType Clipboard</title>
-
-<link rel="stylesheet" href="style.css">
-
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
+    <meta charset="UTF-8">
+    <title>GhostType Secure Sync</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
-
 <body>
 
-<h1>GhostType Clipboard Sync</h1>
+    <div class="container">
+        <h1>GhostType Secure Sync</h1>
+        
+        <div class="input-section">
+            <input id="deviceName" placeholder="Device Name (e.g. Laptop 1)">
+            <textarea id="textInput" placeholder="Paste your clipboard content here..."></textarea>
+            
+            <div class="options">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="secureCheck">
+                    <span class="checkmark"></span>
+                    Lock with One-Time Password (OTP)
+                </label>
+            </div>
+            
+            <button onclick="sendData()" class="send-btn">Send to Cloud</button>
+            <p id="otpAlert" style="color: blue; font-weight: bold;"></p>
+        </div>
 
-<input id="deviceName" placeholder="Device name">
+        <hr>
 
-<br><br>
+        <h2>Cloud Clipboard History</h2>
+        <div id="messages"></div>
+    </div>
 
-<textarea id="textInput" placeholder="Paste text here"></textarea>
-
-<br>
-
-<label>
-<input type="checkbox" id="secureCheck">
-Secure message (OTP)
-</label>
-
-<br>
-
-<button onclick="sendText()">Send</button>
-
-<h2>Messages</h2>
-
-<div id="messages"></div>
-
-<script src="app.js"></script>
-
+    <script src="app.js"></script>
 </body>
-
 </html>
