@@ -2,19 +2,109 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GhostType Ultra | Input Fix</title>
+    <title>GhostType Ultra | Premium Sync</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .card { background: #1e293b; width: 100%; max-width: 450px; padding: 25px; border-radius: 15px; border: 1px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h1 { color: #38bdf8; text-align: center; margin-bottom: 20px; }
-        input, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 8px; box-sizing: border-box; }
-        textarea { height: 100px; font-size: 14px; }
+        :root {
+            --primary: #38bdf8;
+            --accent: #f472b6;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+        }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background: var(--bg); 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            min-height: 100vh;
+        }
+
+        .card { 
+            background: var(--card-bg); 
+            width: 100%; 
+            max-width: 450px; 
+            padding: 25px; 
+            border-radius: 20px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); 
+            transition: all 0.3s ease;
+        }
+
+        h1 { color: var(--primary); text-align: center; margin-bottom: 20px; letter-spacing: -1px; }
+
+        input, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 10px; 
+            background: rgba(15, 23, 42, 0.8); 
+            border: 1px solid #334155; 
+            color: white; 
+            border-radius: 12px; 
+            box-sizing: border-box;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+            outline: none;
+        }
+
+        textarea { height: 100px; font-size: 14px; resize: none; }
+
         .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        button { background: #38bdf8; color: #0f172a; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
-        #otpAlert { color: #f472b6; font-weight: bold; text-align: center; margin-bottom: 10px; font-family: monospace; min-height: 20px; }
-        .msg-card { background: #334155; padding: 15px; margin-top: 10px; border-radius: 8px; border-left: 4px solid #38bdf8; word-wrap: break-word; }
-        .secure { border-left-color: #f472b6; }
-        #status-bar { font-size: 10px; color: #4ade80; margin-top: 10px; }
+
+        button { 
+            background: var(--primary); 
+            color: #0f172a; 
+            border: none; 
+            padding: 12px 20px; 
+            border-radius: 12px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            width: 100%; 
+            transition: transform 0.2s ease, background 0.3s ease;
+        }
+
+        button:hover { 
+            background: #7dd3fc; 
+            transform: translateY(-2px);
+        }
+
+        button:active { transform: translateY(0); }
+
+        #otpAlert { 
+            color: var(--accent); 
+            font-weight: bold; 
+            text-align: center; 
+            margin-bottom: 10px; 
+            font-family: 'Courier New', monospace; 
+            min-height: 20px; 
+        }
+
+        .msg-card { 
+            background: rgba(255,255,255,0.03); 
+            padding: 15px; 
+            margin-top: 15px; 
+            border-radius: 15px; 
+            border-left: 4px solid var(--primary); 
+            word-wrap: break-word;
+            backdrop-filter: blur(5px);
+        }
+
+        .secure { border-left-color: var(--accent); background: rgba(244, 114, 182, 0.05); }
+
+        #status-bar { font-size: 11px; color: #4ade80; margin-top: 10px; font-weight: 500; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -23,28 +113,29 @@
 </head>
 <body>
 
-<div class="card">
-    <h1>GhostType <span style="font-size: 12px; color: #94a3b8;">SECURE</span></h1>
+<div class="card animate__animated animate__fadeInDown">
+    <h1>GHOSTTYPE <span style="font-size: 12px; color: #94a3b8; font-weight: 300;">ULTRA</span></h1>
     
-    <input type="text" id="deviceName" placeholder="👤 Device Name (e.g. Laptop)">
-    <textarea id="textInput" placeholder="Paste your text here..."></textarea>
+    <input type="text" id="deviceName" placeholder="👤 Identity (e.g. Uday's Laptop)">
+    <textarea id="textInput" placeholder="Paste sensitive text here..."></textarea>
     
     <div class="row">
-        <label style="font-size: 13px; cursor: pointer;"><input type="checkbox" id="secureCheck"> 🔒 OTP Lock</label>
+        <label style="font-size: 13px; cursor: pointer; display: flex; align-items: center;">
+            <input type="checkbox" id="secureCheck" style="width: auto; margin-right: 8px; margin-bottom: 0;"> 🔒 OTP Lock
+        </label>
     </div>
     
     <button id="mainSendBtn">Sync Clipboard Now</button>
     
-    <div id="otpAlert"></div>
-    <div id="status-bar">System Standby...</div>
-    <hr style="border: 0; border-top: 1px solid #334155; margin: 20px 0;">
+    <div id="otpAlert" class="animate__animated"></div>
+    <div id="status-bar">Connecting to Cloud...</div>
+    <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
     <div id="messages"></div>
 </div>
 
 
 
 <script>
-    // --- 1. FIREBASE SETUP ---
     const firebaseConfig = {
         apiKey: "AIzaSyDRsNoO7wS4tY9G_VFwRTsTDWwHaYbJGl4",
         authDomain: "ghosttype-67c57.firebaseapp.com",
@@ -59,30 +150,28 @@
     const db = firebase.database().ref("v4_stable_sync");
     const MASTER_KEY = "GHOST_KEY_2026";
 
-    // --- 2. ENSURE DOM IS LOADED ---
     document.addEventListener("DOMContentLoaded", () => {
         const sendBtn = document.getElementById("mainSendBtn");
         const status = document.getElementById("status-bar");
+        const otpAlert = document.getElementById("otpAlert");
         
-        status.innerText = "Firebase Connected ✅";
+        status.innerText = "Cloud Securely Connected ✅";
 
-        // --- 3. SEND LOGIC ---
         sendBtn.addEventListener("click", () => {
             const devEl = document.getElementById("deviceName");
             const txtEl = document.getElementById("textInput");
             const secEl = document.getElementById("secureCheck");
 
-            const device = devEl.value || "Anonymous Device";
-            const textContent = txtEl.value.trim(); // Trim removes accidental spaces
+            const device = devEl.value || "Hidden Device";
+            const textContent = txtEl.value.trim();
 
-            if (!textContent || textContent === "") {
-                alert("Error: Please paste or type some text first!");
+            if (!textContent) {
+                alert("Clipboard is empty!");
                 return;
             }
 
-            status.innerText = "Encrypting & Sending...";
+            status.innerText = "Encrypting Data...";
 
-            // AES Encryption
             const encrypted = CryptoJS.AES.encrypt(textContent, MASTER_KEY).toString();
             
             let otp = null;
@@ -90,10 +179,12 @@
 
             if (secEl.checked) {
                 otp = Math.floor(100000 + Math.random() * 900000).toString();
-                expiry = Date.now() + 60000; // 60s
-                document.getElementById("otpAlert").innerText = "YOUR SECURE OTP: " + otp;
+                expiry = Date.now() + 60000;
+                otpAlert.innerText = "YOUR SECURE OTP: " + otp;
+                otpAlert.classList.add('animate__shakeX');
+                setTimeout(() => otpAlert.classList.remove('animate__shakeX'), 1000);
             } else {
-                document.getElementById("otpAlert").innerText = "";
+                otpAlert.innerText = "";
             }
 
             db.push({
@@ -105,61 +196,66 @@
                 time: new Date().toLocaleTimeString()
             }).then(() => {
                 status.innerText = "Sync Successful! 🚀";
-                txtEl.value = ""; // Clear box after success
-                setTimeout(() => { status.innerText = "System Standby..."; }, 2000);
-            }).catch((err) => {
-                status.innerText = "Error: " + err.message;
+                txtEl.value = "";
+                setTimeout(() => { status.innerText = "Cloud Securely Connected ✅"; }, 2000);
             });
         });
 
-        // --- 4. RECEIVE LOGIC ---
         db.on("child_added", (snap) => {
             const data = snap.val();
             const id = snap.key;
 
             const div = document.createElement("div");
-            div.className = data.isSecure ? "msg-card secure" : "msg-card";
+            div.className = `msg-card animate__animated animate__fadeInUp ${data.isSecure ? 'secure' : ''}`;
             div.id = `card-${id}`;
 
-            let html = `<small style="color:#94a3b8">${data.device} • ${data.time}</small>`;
+            let html = `<small style="color:#94a3b8; font-weight: 600;">${data.device} • ${data.time}</small>`;
 
             if (data.isSecure) {
                 html += `
                     <div id="lock-${id}">
-                        <p style="margin:5px 0; color:#f472b6;">🔒 Locked Content (<span id="timer-${id}">01:00</span>)</p>
-                        <input type="text" id="otp-in-${id}" placeholder="Enter OTP" style="width:100px; padding:5px; margin-bottom:5px;">
-                        <button style="width:auto; padding:5px 10px;" onclick="unlock('${id}', '${data.otp}', '${data.payload}', ${data.expiry})">Unlock</button>
+                        <p style="margin:8px 0; color:#f472b6; font-size: 14px;">🔒 Locked Content (<span id="timer-${id}">60</span>s)</p>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" id="otp-in-${id}" placeholder="OTP" style="width:80px; padding:8px; margin:0;">
+                            <button style="width:auto; padding:8px 15px; font-size: 12px;" onclick="unlock('${id}', '${data.otp}', '${data.payload}', ${data.expiry})">Unlock</button>
+                        </div>
                     </div>
-                    <div id="show-${id}" style="display:none; color:#38bdf8; font-weight:bold; margin-top:10px; white-space: pre-wrap;"></div>
+                    <div id="show-${id}" class="animate__animated animate__fadeIn" style="display:none; color:#38bdf8; font-weight:bold; margin-top:10px; white-space: pre-wrap;"></div>
                 `;
                 runTimer(id, data.expiry);
             } else {
                 const bytes = CryptoJS.AES.decrypt(data.payload, MASTER_KEY);
                 const original = bytes.toString(CryptoJS.enc.Utf8);
-                html += `<div style="margin-top:5px; white-space: pre-wrap;">${original}</div>`;
+                html += `<div style="margin-top:8px; white-space: pre-wrap; font-size: 14px;">${original}</div>`;
             }
 
             div.innerHTML = html;
             document.getElementById("messages").prepend(div);
         });
+
+        // Listen for deletions to trigger fadeOut
+        db.on("child_removed", (snap) => {
+            const card = document.getElementById(`card-${snap.key}`);
+            if (card) {
+                card.classList.remove('animate__fadeInUp');
+                card.classList.add('animate__fadeOutLeft');
+                setTimeout(() => card.remove(), 500);
+            }
+        });
     });
 
-    // --- 5. TIMER & UNLOCK ---
     function runTimer(id, expiry) {
         const timerTask = setInterval(() => {
             const diff = expiry - Date.now();
+            const tDisplay = document.getElementById(`timer-${id}`);
+            
             if (diff <= 0) {
                 clearInterval(timerTask);
-                const card = document.getElementById(`card-${id}`);
-                if (card) { 
-                    card.innerHTML = "<small style='color:gray;'>Data Expired & Deleted</small>";
-                    db.child(id).remove(); 
-                }
+                db.child(id).remove(); // This triggers child_removed animation
                 return;
             }
             const s = Math.floor((diff % 60000) / 1000);
-            const tDisplay = document.getElementById(`timer-${id}`);
-            if (tDisplay) tDisplay.innerText = `00:${s.toString().padStart(2, '0')}`;
+            if (tDisplay) tDisplay.innerText = s;
         }, 1000);
     }
 
@@ -174,6 +270,9 @@
             display.innerText = bytes.toString(CryptoJS.enc.Utf8);
             display.style.display = "block";
         } else {
+            const btn = event.target;
+            btn.classList.add('animate__animated', 'animate__headShake');
+            setTimeout(() => btn.classList.remove('animate__headShake'), 500);
             alert("Incorrect OTP!");
         }
     };
