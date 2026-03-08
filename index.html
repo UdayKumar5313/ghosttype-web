@@ -2,9 +2,9 @@
 <html>
 
 <head>
-
 <meta charset="UTF-8">
 <title>GhostType Secure Clipboard</title>
+
 <link rel="stylesheet" href="style.css">
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -14,48 +14,20 @@
 
 <body>
 
-<h1>GhostType Secure Clipboard</h1>
+<h1>GhostType Clipboard</h1>
 
-<div class="securityBox">
+<input id="deviceName" placeholder="Device name">
+
+<br><br>
+
+<textarea id="textInput" placeholder="Paste text"></textarea>
+
+<br>
 
 <label>
-<input type="checkbox" id="enablePassword">
-Enable One-Time Password
+<input type="checkbox" id="secureMessage">
+Secure Message (OTP Required)
 </label>
-
-<br><br>
-
-<button onclick="generateOTP()">Generate OTP</button>
-
-<p id="otpDisplay"></p>
-
-<p id="timer"></p>
-
-</div>
-
-<hr>
-
-<div id="loginBox">
-
-<h3>Enter OTP</h3>
-
-<input id="otpInput" placeholder="Enter OTP">
-
-<button onclick="unlock()">Unlock</button>
-
-<p id="loginStatus"></p>
-
-</div>
-
-<hr>
-
-<div id="app" style="display:none">
-
-<input id="deviceName" placeholder="Device Name">
-
-<br><br>
-
-<textarea id="textInput" placeholder="Paste or type text"></textarea>
 
 <br>
 
@@ -64,8 +36,6 @@ Enable One-Time Password
 <h2>Messages</h2>
 
 <div id="messages"></div>
-
-</div>
 
 <script src="app.js"></script>
 
