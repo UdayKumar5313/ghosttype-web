@@ -19,6 +19,7 @@ appId: "1:965426759949:web:08740170d41fda24478844"
 firebase.initializeApp(firebaseConfig);
 
 const database = firebase.database();
+
 const messagesRef = database.ref("clipboard");
 
 
@@ -29,11 +30,12 @@ let device = document.getElementById("deviceName").value || "Unknown";
 
 let text = document.getElementById("textInput").value;
 
-let secure = document.getElementById("secureMessage").checked;
+let secure = document.getElementById("secureCheck").checked;
 
 let time = new Date().toLocaleTimeString();
 
 let otp = null;
+
 let expire = null;
 
 if(secure){
@@ -42,7 +44,7 @@ otp = Math.floor(100000 + Math.random()*900000).toString();
 
 expire = Date.now() + 60000;
 
-alert("OTP for this message: " + otp + " (valid 1 minute)");
+alert("OTP: " + otp + " (valid 1 minute)");
 
 }
 
@@ -71,25 +73,19 @@ let div = document.createElement("div");
 
 div.className="message";
 
-if(!data.secure){
+if(data.secure){
 
 div.innerHTML =
-"<b>"+data.device+"</b> ("+data.time+")<br>"+data.text;
-
-}else{
-
-div.innerHTML =
-"<b>"+data.device+"</b> ("+data.time+")<br>" +
-"<span class='locked'>🔒 Secure message</span>" +
-"<br><input placeholder='Enter OTP'>" +
+"<b>"+data.device+"</b> ("+data.time+")<br>"+
+"<span class='locked'>🔒 Secure message</span><br>"+
+"<input placeholder='Enter OTP'>"+
 "<button>Unlock</button>";
 
 let input = div.querySelector("input");
+
 let button = div.querySelector("button");
 
-button.onclick=function(){
-
-let entered = input.value;
+button.onclick = function(){
 
 if(Date.now() > data.expire){
 
@@ -99,7 +95,7 @@ return;
 
 }
 
-if(entered === data.otp){
+if(input.value === data.otp){
 
 div.innerHTML =
 "<b>"+data.device+"</b> ("+data.time+")<br>"+data.text;
@@ -111,6 +107,11 @@ alert("Wrong OTP");
 }
 
 };
+
+}else{
+
+div.innerHTML =
+"<b>"+data.device+"</b> ("+data.time+")<br>"+data.text;
 
 }
 
