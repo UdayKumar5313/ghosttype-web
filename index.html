@@ -1,29 +1,53 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
 <meta charset="UTF-8">
 <title>GhostType Secure Clipboard</title>
 <link rel="stylesheet" href="style.css">
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
 </head>
 
 <body>
 
 <h1>GhostType Secure Clipboard</h1>
 
+<div class="securityBox">
+
+<label>
+<input type="checkbox" id="enablePassword">
+Enable One-Time Password
+</label>
+
+<br><br>
+
+<button onclick="generateOTP()">Generate OTP</button>
+
+<p id="otpDisplay"></p>
+
+<p id="timer"></p>
+
+</div>
+
+<hr>
+
 <div id="loginBox">
 
-<h3>Enter Security Key</h3>
+<h3>Enter OTP</h3>
 
-<input id="keyInput" type="password" placeholder="Enter shared key">
+<input id="otpInput" placeholder="Enter OTP">
 
 <button onclick="unlock()">Unlock</button>
 
 <p id="loginStatus"></p>
 
 </div>
+
+<hr>
 
 <div id="app" style="display:none">
 
@@ -46,4 +70,5 @@
 <script src="app.js"></script>
 
 </body>
+
 </html>
