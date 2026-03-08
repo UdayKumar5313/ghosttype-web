@@ -21,26 +21,101 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const messagesRef = database.ref("clipboard");
 
-const SECURITY_KEY = "ghost123";   // change this key
+let currentOTP = null;
+let otpExpireTime = null;
+let timerInterval = null;
+
+
+
+function generateOTP(){
+
+if(!document.getElementById("enablePassword").checked){
+
+alert("Enable password option first");
+
+return;
+
+}
+
+currentOTP = Math.floor(100000 + Math.random()*900000).toString();
+
+document.getElementById("otpDisplay").innerText = "OTP: " + currentOTP;
+
+otpExpireTime = Date.now() + 60000;
+
+startTimer();
+
+}
+
+
+
+function startTimer(){
+
+clearInterval(timerInterval);
+
+timerInterval = setInterval(()=>{
+
+let remaining = otpExpireTime - Date.now();
+
+if(remaining <= 0){
+
+clearInterval(timerInterval);
+
+document.getElementById("timer").innerText="OTP expired";
+
+currentOTP=null;
+
+document.getElementById("otpDisplay").innerText="";
+
+return;
+
+}
+
+let minutes = Math.floor(remaining/60000);
+let seconds = Math.floor((remaining%60000)/1000);
+let ms = remaining % 1000;
+
+document.getElementById("timer").innerText =
+minutes + ":" + seconds + ":" + ms;
+
+},10);
+
+}
+
 
 
 function unlock(){
 
-let userKey = document.getElementById("keyInput").value;
+if(!document.getElementById("enablePassword").checked){
 
-if(userKey === SECURITY_KEY){
+openApp();
 
-document.getElementById("loginBox").style.display="none";
+return;
 
-document.getElementById("app").style.display="block";
+}
 
-startListening();
+let userOTP = document.getElementById("otpInput").value;
+
+if(userOTP === currentOTP){
+
+openApp();
 
 }else{
 
-document.getElementById("loginStatus").innerText="Wrong key";
+document.getElementById("loginStatus").innerText="Wrong OTP";
 
 }
+
+}
+
+
+
+function openApp(){
+
+document.getElementById("loginBox").style.display="none";
+document.getElementById("app").style.display="block";
+
+startListening();
 
 }
 
@@ -55,9 +130,11 @@ let text = document.getElementById("textInput").value;
 let time = new Date().toLocaleTimeString();
 
 messagesRef.push({
+
 device:device,
 text:text,
 time:time
+
 });
 
 document.getElementById("textInput").value="";
