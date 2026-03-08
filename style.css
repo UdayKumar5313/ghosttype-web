@@ -1,43 +1,81 @@
 body{
-font-family: Arial;
-text-align:center;
-padding:40px;
+
+font-family:Arial;
+
 background:#f2f2f2;
+
+text-align:center;
+
+padding:40px;
+
 }
 
 textarea{
+
 width:400px;
+
 height:120px;
+
 font-size:16px;
+
 }
 
 button{
-padding:10px 20px;
-margin:10px;
-font-size:16px;
-cursor:pointer;
-}
 
-#loginBox{
-background:white;
-padding:20px;
-width:300px;
-margin:auto;
-border-radius:10px;
+padding:10px 20px;
+
+margin:10px;
+
+font-size:16px;
+
+cursor:pointer;
+
 }
 
 #messages{
+
 width:450px;
+
 margin:auto;
+
 margin-top:20px;
+
 background:white;
+
 padding:20px;
+
 border-radius:10px;
+
 text-align:left;
+
 }
 
 .message{
+
 border-bottom:1px solid #ddd;
+
 padding:10px;
+
+}
+
+.securityBox{
+
+background:white;
+
+padding:20px;
+
+width:300px;
+
+margin:auto;
+
+border-radius:10px;
+
+}
+
+#timer{
+
+font-weight:bold;
+
+color:red;
 
 }
