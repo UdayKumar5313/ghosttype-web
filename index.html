@@ -2,22 +2,37 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>GhostType Clipboard Sync</title>
+<title>GhostType Secure Clipboard</title>
 <link rel="stylesheet" href="style.css">
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 
 <body>
 
-<h1>GhostType Clipboard Sync</h1>
+<h1>GhostType Secure Clipboard</h1>
 
-<input id="deviceName" placeholder="Device name (Laptop / Phone)">
+<div id="loginBox">
+
+<h3>Enter Security Key</h3>
+
+<input id="keyInput" type="password" placeholder="Enter shared key">
+
+<button onclick="unlock()">Unlock</button>
+
+<p id="loginStatus"></p>
+
+</div>
+
+<div id="app" style="display:none">
+
+<input id="deviceName" placeholder="Device Name">
+
 <br><br>
 
-<textarea id="textInput" placeholder="Type or paste text"></textarea>
+<textarea id="textInput" placeholder="Paste or type text"></textarea>
+
 <br>
 
 <button onclick="sendText()">Send</button>
@@ -25,6 +40,8 @@
 <h2>Messages</h2>
 
 <div id="messages"></div>
+
+</div>
 
 <script src="app.js"></script>
 
