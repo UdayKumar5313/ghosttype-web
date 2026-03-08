@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>GhostType Clipboard Sync</title>
+<link rel="stylesheet" href="style.css">
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+</head>
+
+<body>
+
+<h1>GhostType Clipboard Sync</h1>
+
+<input id="deviceName" placeholder="Device name (Laptop / Phone)">
+<br><br>
+
+<textarea id="textInput" placeholder="Type or paste text"></textarea>
+<br>
+
+<button onclick="sendText()">Send</button>
+
+<h2>Messages</h2>
+
+<div id="messages"></div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
