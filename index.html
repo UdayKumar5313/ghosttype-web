@@ -2,36 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GhostType Secure Sync</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GhostType Ultra | Secure Sync</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
 
-    <div class="container">
-        <h1>GhostType Secure Sync</h1>
+    <div class="glass-panel">
+        <header>
+            <h1>GhostType <span class="badge">ULTRA</span></h1>
+            <p class="subtitle">End-to-End Encrypted Clipboard</p>
+        </header>
         
-        <div class="input-section">
-            <input id="deviceName" placeholder="Device Name (e.g. Laptop 1)">
-            <textarea id="textInput" placeholder="Paste your clipboard content here..."></textarea>
+        <div class="input-group">
+            <input id="deviceName" placeholder="👤 Device Identity (e.g., iPhone 15)">
+            <textarea id="textInput" placeholder="Type or paste sensitive data..."></textarea>
             
-            <div class="options">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="secureCheck">
-                    <span class="checkmark"></span>
-                    Lock with One-Time Password (OTP)
-                </label>
+            <div class="secure-toggle">
+                <input type="checkbox" id="secureCheck">
+                <label for="secureCheck">🔒 Enable OTP & Auto-Destruct</label>
             </div>
             
-            <button onclick="sendData()" class="send-btn">Send to Cloud</button>
-            <p id="otpAlert" style="color: blue; font-weight: bold;"></p>
+            <button onclick="sendData()" class="primary-btn">Sync to Cloud</button>
+            <div id="otpDisplay" class="otp-banner"></div>
         </div>
 
-        <hr>
-
-        <h2>Cloud Clipboard History</h2>
-        <div id="messages"></div>
+        <div class="history-section">
+            <h3><span class="dot"></span> Live Stream</h3>
+            <div id="messages"></div>
+        </div>
     </div>
 
     <script src="app.js"></script>
