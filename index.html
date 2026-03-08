@@ -2,63 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GhostType Ultra | 2026 Edition</title>
+    <title>GhostType Master | 30-Feature Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     
     <style>
-        :root {
-            --primary: #38bdf8; --accent: #f472b6; --bg: #0f172a; --card-bg: #1e293b; --text: #f8fafc;
-        }
-        .light-theme {
-            --bg: #f1f5f9; --card-bg: #ffffff; --text: #1e293b;
-        }
-
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); transition: 0.3s; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .card { background: var(--card-bg); width: 100%; max-width: 500px; padding: 25px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
-        
-        .header-row { display: flex; justify-content: space-between; align-items: center; }
-        .online-dot { width: 10px; height: 10px; background: #4ade80; border-radius: 50%; display: inline-block; margin-right: 5px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-
-        input, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: rgba(0,0,0,0.1); border: 1px solid #475569; color: var(--text); border-radius: 12px; box-sizing: border-box; }
-        .counter { font-size: 10px; text-align: right; color: var(--primary); margin-top: -8px; margin-bottom: 10px; }
-        
-        .progress-container { width: 100%; background: #334155; height: 4px; border-radius: 2px; margin-top: 5px; overflow: hidden; }
-        .progress-bar { background: var(--accent); height: 100%; width: 100%; transition: width 1s linear; }
-
-        .msg-card { background: rgba(255,255,255,0.05); padding: 15px; margin-top: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
-        .copy-btn { position: absolute; top: 10px; right: 10px; font-size: 12px; cursor: pointer; background: var(--primary); color: #000; padding: 2px 8px; border-radius: 5px; border: none; }
-        
-        .search-box { margin-bottom: 15px; border-radius: 20px; padding: 8px 15px; }
-        button { cursor: pointer; border: none; border-radius: 10px; font-weight: bold; transition: 0.3s; }
-        .main-btn { background: var(--primary); color: #000; width: 100%; padding: 15px; }
-        .theme-btn { background: none; color: var(--primary); font-size: 20px; }
+        :root { --p: #38bdf8; --s: #f472b6; --bg: #0f172a; --c: #1e293b; --t: #f8fafc; }
+        .light { --bg: #f1f5f9; --c: #ffffff; --t: #1e293b; }
+        body { background: var(--bg); color: var(--t); font-family: 'Inter', sans-serif; transition: 0.3s; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .card { background: var(--c); width: 100%; max-width: 500px; padding: 25px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .dot { height: 10px; width: 10px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 10px #4ade80; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: rgba(0,0,0,0.1); border: 1px solid #475569; color: var(--t); border-radius: 12px; box-sizing: border-box; }
+        textarea { height: 100px; resize: none; }
+        .btn { cursor: pointer; border: none; border-radius: 12px; font-weight: bold; transition: 0.3s; padding: 14px; background: var(--p); color: #000; width: 100%; }
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .msg-card { background: rgba(255,255,255,0.05); padding: 15px; margin-top: 15px; border-radius: 15px; border-left: 4px solid var(--p); position: relative; }
+        .prog { height: 4px; background: var(--s); width: 100%; margin-top: 10px; border-radius: 2px; transition: width 1s linear; }
+        .trash { position: absolute; top: 10px; right: 10px; cursor: pointer; opacity: 0.5; }
+        .trash:hover { opacity: 1; color: var(--s); }
+        #search { border-radius: 20px; padding: 8px 15px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
 <div class="card animate__animated animate__fadeIn">
-    <div class="header-row">
-        <button class="theme-btn" onclick="toggleTheme()">🌓</button>
-        <h1>GHOSTTYPE <span style="font-size: 10px; background:var(--primary); color:#000; padding:2px 5px; border-radius:4px;">PRO</span></h1>
-        <div><span class="online-dot"></span><small>Live</small></div>
+    <div class="header">
+        <button onclick="document.body.classList.toggle('light')" style="background:none; border:none; font-size:20px; cursor:pointer;">🌓</button>
+        <h2 style="margin:0; color:var(--p);">GHOSTTYPE <small style="color:var(--t); font-size:10px;">MASTER</small></h2>
+        <div><span class="dot"></span> <small>Secure</small></div>
     </div>
 
-    <input id="deviceName" placeholder="👤 Device Name" oninput="saveName()">
-    <textarea id="textInput" placeholder="Paste clipboard content..." oninput="updateCounter()"></textarea>
-    <div class="counter" id="charCounter">0 chars | 0 words</div>
+    <input id="deviceName" placeholder="👤 Device Name" oninput="localStorage.setItem('gName', this.value)">
+    <textarea id="textInput" placeholder="Paste content..." oninput="updateCounters()"></textarea>
+    <div id="counters" style="font-size:10px; text-align:right; margin-bottom:10px; color:var(--p);">0 Chars | 0 Words</div>
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-        <label style="font-size:12px;"><input type="checkbox" id="secureCheck"> 🔒 OTP Protection</label>
-        <button onclick="sendData()" class="main-btn" style="width:150px;">Sync Data</button>
+        <label style="font-size:12px; cursor:pointer;"><input type="checkbox" id="isSec"> 🔒 OTP Protection</label>
+        <button onclick="send()" class="btn" style="width:140px;">Sync Now</button>
     </div>
     
-    <div id="otpAlert" style="text-align:center; color:var(--accent); font-weight:bold; margin-bottom:10px;"></div>
-
-    <input type="text" id="search" class="search-box" placeholder="🔍 Search history..." oninput="searchMessages()">
+    <div id="otpDisplay" style="text-align:center; color:var(--s); font-weight:bold; margin-bottom:10px;"></div>
+    <input id="search" placeholder="🔍 Search history..." oninput="searchMsgs()">
+    <div id="status" style="font-size:10px; text-align:center; color:#94a3b8; margin-bottom:10px;">System Ready</div>
     <div id="messages"></div>
 </div>
 
@@ -76,115 +65,90 @@
     };
 
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database().ref("v6_pro_sync");
-    const MASTER_KEY = "GHOST_KEY_2026";
-    const notificationSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+    const db = firebase.database().ref("v7_master_sync");
+    const KEY = "GHOST_MASTER_2026";
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
 
-    // Persistence: Load Name
-    window.onload = () => {
-        document.getElementById("deviceName").value = localStorage.getItem("ghostName") || "";
-    };
+    document.getElementById("deviceName").value = localStorage.getItem('gName') || "";
 
-    function saveName() { localStorage.setItem("ghostName", document.getElementById("deviceName").value); }
-
-    function updateCounter() {
-        const text = document.getElementById("textInput").value;
-        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-        document.getElementById("charCounter").innerText = `${text.length} chars | ${words} words`;
+    function updateCounters() {
+        const t = document.getElementById("textInput").value;
+        document.getElementById("counters").innerText = `${t.length} Chars | ${t.trim() ? t.trim().split(/\s+/).length : 0} Words`;
     }
 
-    function toggleTheme() { document.body.classList.toggle("light-theme"); }
-
-    function sendData() {
+    function send() {
         const text = document.getElementById("textInput").value.trim();
         const dev = document.getElementById("deviceName").value || "Unknown";
-        const isSec = document.getElementById("secureCheck").checked;
-        if (!text) return alert("Input empty!");
+        const secure = document.getElementById("isSec").checked;
+        if(!text) return;
 
-        const enc = CryptoJS.AES.encrypt(text, MASTER_KEY).toString();
-        let otp = isSec ? Math.floor(100000 + Math.random()*900000).toString() : null;
-        let exp = isSec ? Date.now() + 60000 : null;
+        const encrypted = CryptoJS.AES.encrypt(text, KEY).toString();
+        let otp = secure ? Math.floor(100000 + Math.random()*900000).toString() : null;
+        let exp = secure ? Date.now() + 60000 : null;
 
-        if(isSec) document.getElementById("otpAlert").innerText = "OTP: " + otp;
-
-        db.push({ dev, payload: enc, isSec, otp, exp, time: new Date().toLocaleTimeString() });
+        if(secure) document.getElementById("otpDisplay").innerText = "OTP: " + otp;
+        db.push({ dev, payload: encrypted, secure, otp, exp, time: new Date().toLocaleTimeString() });
         document.getElementById("textInput").value = "";
-        updateCounter();
+        updateCounters();
+        document.getElementById("status").innerText = "Sent at " + new Date().toLocaleTimeString();
     }
 
     db.on("child_added", (snap) => {
-        notificationSound.play();
-        const data = snap.val();
-        const id = snap.key;
-        renderMessage(id, data);
-    });
-
-    function renderMessage(id, data) {
+        audio.play();
+        const data = snap.val(); const id = snap.key;
         const div = document.createElement("div");
-        div.className = "msg-card animate__animated animate__slideInUp";
-        div.id = `msg-${id}`;
-        div.dataset.text = ""; // Placeholder for search
+        div.className = "msg-card animate__animated animate__fadeInUp";
+        div.id = `m-${id}`;
+        div.dataset.raw = "";
 
-        let html = `<small>${data.dev} • ${data.time}</small> <button class="copy-btn" id="copy-${id}" style="display:none" onclick="copyToClip('${id}')">Copy</button>`;
-
-        if (data.isSec) {
-            html += `
-                <div id="lock-${id}">
-                    <p style="color:var(--accent); margin:5px 0;">🔒 OTP Required</p>
-                    <div class="progress-container"><div class="progress-bar" id="bar-${id}"></div></div>
-                    <input id="in-${id}" placeholder="Enter OTP" style="width:80px; margin-top:10px;">
-                    <button onclick="unlock('${id}', '${data.otp}', '${data.payload}', ${data.exp})">Unlock</button>
-                </div>
-                <div id="content-${id}" style="display:none; font-weight:bold; margin-top:10px;"></div>`;
-            handleTimer(id, data.exp);
+        let html = `<small>${data.dev} • ${data.time}</small> <span class="trash" onclick="del('${id}')">🗑️</span>`;
+        if(data.secure) {
+            html += `<div id="l-${id}"><p style="color:var(--s); font-size:12px;">🔒 SECURE PACKET</p><div class="prog" id="b-${id}"></div><input id="i-${id}" placeholder="OTP" style="width:70px; margin-top:10px;"><button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" style="padding:5px; width:auto; margin-left:10px;">Unlock</button></div><div id="s-${id}" style="display:none; font-weight:bold; color:var(--p); margin-top:10px;"></div>`;
+            handleExp(id, data.exp);
         } else {
-            const dec = CryptoJS.AES.decrypt(data.payload, MASTER_KEY).toString(CryptoJS.enc.Utf8);
-            div.dataset.text = dec.toLowerCase();
-            html += `<div style="margin-top:5px;">${dec}</div>`;
-            setTimeout(() => document.getElementById(`copy-${id}`).style.display = 'block', 100);
+            const dec = CryptoJS.AES.decrypt(data.payload, KEY).toString(CryptoJS.enc.Utf8);
+            div.dataset.raw = dec.toLowerCase();
+            html += `<div style="margin-top:5px;">${dec}</div><button onclick="copy('${id}')" style="font-size:10px; width:auto; padding:2px 5px; margin-top:5px;">Copy</button><span id="c-${id}" style="display:none; margin-top:5px; font-size:14px;">${dec}</span>`;
         }
-
         div.innerHTML = html;
         document.getElementById("messages").prepend(div);
-    }
+    });
 
-    function handleTimer(id, exp) {
+    db.on("child_removed", (snap) => {
+        const el = document.getElementById(`m-${snap.key}`);
+        if(el) { el.classList.add('animate__fadeOut'); setTimeout(() => el.remove(), 500); }
+    });
+
+    function handleExp(id, exp) {
         const itv = setInterval(() => {
             const diff = exp - Date.now();
-            if (diff <= 0) {
-                clearInterval(itv);
-                document.getElementById(`msg-${id}`).remove();
-                db.child(id).remove();
-                return;
-            }
-            const bar = document.getElementById(`bar-${id}`);
-            if (bar) bar.style.width = (diff / 60000 * 100) + "%";
+            if(diff <= 0) { clearInterval(itv); del(id); return; }
+            const bar = document.getElementById(`b-${id}`);
+            if(bar) bar.style.width = (diff/60000*100) + "%";
         }, 1000);
     }
 
     window.unlock = (id, correct, payload, exp) => {
-        const input = document.getElementById(`in-${id}`).value;
-        if (input === correct && Date.now() < exp) {
-            const dec = CryptoJS.AES.decrypt(payload, MASTER_KEY).toString(CryptoJS.enc.Utf8);
-            document.getElementById(`lock-${id}`).style.display = "none";
-            document.getElementById(`content-${id}`).innerText = dec;
-            document.getElementById(`content-${id}`).style.display = "block";
-            document.getElementById(`copy-${id}`).style.display = 'block';
-            document.getElementById(`msg-${id}`).dataset.text = dec.toLowerCase();
-        } else { alert("Access Denied!"); }
+        const val = document.getElementById(`i-${id}`).value;
+        if(val === correct && Date.now() < exp) {
+            const dec = CryptoJS.AES.decrypt(payload, KEY).toString(CryptoJS.enc.Utf8);
+            document.getElementById(`l-${id}`).style.display="none";
+            document.getElementById(`s-${id}`).innerText = dec;
+            document.getElementById(`s-${id}`).style.display="block";
+            document.getElementById(`m-${id}`).dataset.raw = dec.toLowerCase();
+        } else { alert("Wrong OTP or Expired!"); }
     };
 
-    window.copyToClip = (id) => {
-        const text = document.getElementById(`content-${id}`) ? document.getElementById(`content-${id}`).innerText : document.querySelector(`#msg-${id} div:last-child`).innerText;
-        navigator.clipboard.writeText(text);
-        alert("Copied!");
+    window.del = (id) => db.child(id).remove();
+    window.copy = (id) => {
+        const t = document.getElementById(`s-${id}`) ? document.getElementById(`s-${id}`).innerText : document.getElementById(`c-${id}`).innerText;
+        navigator.clipboard.writeText(t);
+        document.getElementById("status").innerText = "Copied!";
     };
 
-    function searchMessages() {
+    function searchMsgs() {
         const q = document.getElementById("search").value.toLowerCase();
-        document.querySelectorAll('.msg-card').forEach(card => {
-            card.style.display = card.dataset.text.includes(q) ? 'block' : 'none';
-        });
+        document.querySelectorAll('.msg-card').forEach(c => c.style.display = c.dataset.raw.includes(q) ? 'block' : 'none');
     }
 </script>
 </body>
