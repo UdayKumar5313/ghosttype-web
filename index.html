@@ -2,87 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GhostType Ultra | Premium</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <title>GhostType Ultra | Input Fix</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .card { background: #1e293b; width: 100%; max-width: 450px; padding: 25px; border-radius: 15px; border: 1px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { color: #38bdf8; text-align: center; margin-bottom: 20px; }
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 8px; box-sizing: border-box; }
+        textarea { height: 100px; font-size: 14px; }
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        button { background: #38bdf8; color: #0f172a; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
+        #otpAlert { color: #f472b6; font-weight: bold; text-align: center; margin-bottom: 10px; font-family: monospace; min-height: 20px; }
+        .msg-card { background: #334155; padding: 15px; margin-top: 10px; border-radius: 8px; border-left: 4px solid #38bdf8; word-wrap: break-word; }
+        .secure { border-left-color: #f472b6; }
+        #status-bar { font-size: 10px; color: #4ade80; margin-top: 10px; }
+    </style>
+
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    
-    <style>
-        :root { --primary: #38bdf8; --danger: #f43f5e; --bg: #0f172a; --card-bg: #1e293b; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        
-        /* Glassmorphism Card */
-        .card { 
-            background: var(--card-bg); width: 100%; max-width: 480px; padding: 30px; 
-            border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); 
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); 
-        }
-
-        h1 { color: var(--primary); text-align: center; font-size: 24px; margin-bottom: 25px; letter-spacing: -1px; }
-
-        input, textarea { 
-            width: 100%; padding: 14px; margin-bottom: 12px; background: rgba(15, 23, 42, 0.8); 
-            border: 1px solid #334155; color: white; border-radius: 12px; box-sizing: border-box;
-            transition: 0.3s;
-        }
-        input:focus, textarea:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 10px rgba(56, 189, 248, 0.2); }
-
-        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        
-        button { 
-            background: var(--primary); color: #0f172a; border: none; padding: 14px; 
-            border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%;
-            transition: transform 0.2s, background 0.3s;
-        }
-        button:hover { background: #7dd3fc; transform: translateY(-2px); }
-        button:active { transform: translateY(0); }
-
-        #messages { margin-top: 20px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
-        
-        /* Message Card Animations */
-        .msg-card { 
-            background: rgba(255,255,255,0.03); padding: 18px; margin-bottom: 15px; 
-            border-radius: 15px; border-left: 4px solid var(--primary); 
-            position: relative; transition: 0.3s;
-        }
-        .secure { border-left-color: #f472b6; background: rgba(244, 114, 182, 0.05); }
-
-        /* Delete Icon */
-        .delete-btn {
-            position: absolute; top: 15px; right: 15px; background: transparent;
-            color: #64748b; font-size: 18px; cursor: pointer; width: auto; padding: 0;
-        }
-        .delete-btn:hover { color: var(--danger); transform: none; }
-
-        .meta { font-size: 11px; color: #94a3b8; margin-bottom: 8px; }
-        #otpAlert { color: #f472b6; font-weight: bold; text-align: center; font-family: monospace; min-height: 24px; }
-        #status { font-size: 10px; color: #4ade80; text-align: center; margin-top: 10px; }
-    </style>
 </head>
 <body>
 
-<div class="card animate__animated animate__fadeInDown">
-    <h1>GHOSTTYPE <span style="font-weight: 300;">ULTRA</span></h1>
+<div class="card">
+    <h1>GhostType <span style="font-size: 12px; color: #94a3b8;">SECURE</span></h1>
     
-    <input type="text" id="deviceName" placeholder="👤 Identity (e.g. Uday's Laptop)">
-    <textarea id="textInput" placeholder="Paste sensitive data..."></textarea>
+    <input type="text" id="deviceName" placeholder="👤 Device Name (e.g. Laptop)">
+    <textarea id="textInput" placeholder="Paste your text here..."></textarea>
     
     <div class="row">
-        <label style="font-size: 13px; cursor: pointer; display: flex; align-items: center;">
-            <input type="checkbox" id="secureCheck" style="width: auto; margin-right: 8px; margin-bottom: 0;"> 🔒 OTP Encryption
-        </label>
+        <label style="font-size: 13px; cursor: pointer;"><input type="checkbox" id="secureCheck"> 🔒 OTP Lock</label>
     </div>
     
-    <button id="mainSendBtn">⚡ Sync Clipboard</button>
+    <button id="mainSendBtn">Sync Clipboard Now</button>
     
     <div id="otpAlert"></div>
-    <div id="status">Secure Connection Active ✅</div>
-    
+    <div id="status-bar">System Standby...</div>
+    <hr style="border: 0; border-top: 1px solid #334155; margin: 20px 0;">
     <div id="messages"></div>
 </div>
 
+
+
 <script>
+    // --- 1. FIREBASE SETUP ---
     const firebaseConfig = {
         apiKey: "AIzaSyDRsNoO7wS4tY9G_VFwRTsTDWwHaYbJGl4",
         authDomain: "ghosttype-67c57.firebaseapp.com",
@@ -94,111 +56,125 @@
     };
 
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database().ref("v5_premium_sync");
+    const db = firebase.database().ref("v4_stable_sync");
     const MASTER_KEY = "GHOST_KEY_2026";
 
+    // --- 2. ENSURE DOM IS LOADED ---
     document.addEventListener("DOMContentLoaded", () => {
         const sendBtn = document.getElementById("mainSendBtn");
-        const otpAlert = document.getElementById("otpAlert");
+        const status = document.getElementById("status-bar");
+        
+        status.innerText = "Firebase Connected ✅";
 
-        // --- SEND LOGIC ---
+        // --- 3. SEND LOGIC ---
         sendBtn.addEventListener("click", () => {
-            const text = document.getElementById("textInput").value.trim();
-            const device = document.getElementById("deviceName").value || "Unknown Device";
-            const isSecure = document.getElementById("secureCheck").checked;
+            const devEl = document.getElementById("deviceName");
+            const txtEl = document.getElementById("textInput");
+            const secEl = document.getElementById("secureCheck");
 
-            if (!text) return alert("Please enter text!");
+            const device = devEl.value || "Anonymous Device";
+            const textContent = txtEl.value.trim(); // Trim removes accidental spaces
+
+            if (!textContent || textContent === "") {
+                alert("Error: Please paste or type some text first!");
+                return;
+            }
+
+            status.innerText = "Encrypting & Sending...";
 
             // AES Encryption
-            const encrypted = CryptoJS.AES.encrypt(text, MASTER_KEY).toString();
-            let otp = null; let expiry = null;
+            const encrypted = CryptoJS.AES.encrypt(textContent, MASTER_KEY).toString();
+            
+            let otp = null;
+            let expiry = null;
 
-            if (isSecure) {
+            if (secEl.checked) {
                 otp = Math.floor(100000 + Math.random() * 900000).toString();
-                expiry = Date.now() + 60000;
-                otpAlert.innerText = "ONE-TIME PASS: " + otp;
+                expiry = Date.now() + 60000; // 60s
+                document.getElementById("otpAlert").innerText = "YOUR SECURE OTP: " + otp;
             } else {
-                otpAlert.innerText = "";
+                document.getElementById("otpAlert").innerText = "";
             }
 
             db.push({
-                device, payload: encrypted, isSecure, otp, expiry, time: new Date().toLocaleTimeString()
+                device,
+                payload: encrypted,
+                isSecure: secEl.checked,
+                otp,
+                expiry,
+                time: new Date().toLocaleTimeString()
+            }).then(() => {
+                status.innerText = "Sync Successful! 🚀";
+                txtEl.value = ""; // Clear box after success
+                setTimeout(() => { status.innerText = "System Standby..."; }, 2000);
+            }).catch((err) => {
+                status.innerText = "Error: " + err.message;
             });
-
-            document.getElementById("textInput").value = "";
         });
 
-        // --- RECEIVE LOGIC ---
+        // --- 4. RECEIVE LOGIC ---
         db.on("child_added", (snap) => {
             const data = snap.val();
             const id = snap.key;
-            createMessageCard(id, data);
-        });
 
-        // --- DELETE LOGIC ---
-        db.on("child_removed", (snap) => {
-            const card = document.getElementById(`card-${snap.key}`);
-            if (card) {
-                card.classList.add('animate__animated', 'animate__fadeOutRight');
-                setTimeout(() => card.remove(), 500);
+            const div = document.createElement("div");
+            div.className = data.isSecure ? "msg-card secure" : "msg-card";
+            div.id = `card-${id}`;
+
+            let html = `<small style="color:#94a3b8">${data.device} • ${data.time}</small>`;
+
+            if (data.isSecure) {
+                html += `
+                    <div id="lock-${id}">
+                        <p style="margin:5px 0; color:#f472b6;">🔒 Locked Content (<span id="timer-${id}">01:00</span>)</p>
+                        <input type="text" id="otp-in-${id}" placeholder="Enter OTP" style="width:100px; padding:5px; margin-bottom:5px;">
+                        <button style="width:auto; padding:5px 10px;" onclick="unlock('${id}', '${data.otp}', '${data.payload}', ${data.expiry})">Unlock</button>
+                    </div>
+                    <div id="show-${id}" style="display:none; color:#38bdf8; font-weight:bold; margin-top:10px; white-space: pre-wrap;"></div>
+                `;
+                runTimer(id, data.expiry);
+            } else {
+                const bytes = CryptoJS.AES.decrypt(data.payload, MASTER_KEY);
+                const original = bytes.toString(CryptoJS.enc.Utf8);
+                html += `<div style="margin-top:5px; white-space: pre-wrap;">${original}</div>`;
             }
+
+            div.innerHTML = html;
+            document.getElementById("messages").prepend(div);
         });
     });
 
-    function createMessageCard(id, data) {
-        const list = document.getElementById("messages");
-        const div = document.createElement("div");
-        div.id = `card-${id}`;
-        div.className = `msg-card animate__animated animate__fadeInUp ${data.isSecure ? 'secure' : ''}`;
-
-        let bodyHtml = `<div class="meta">${data.device} • ${data.time}</div>`;
-        bodyHtml += `<span class="delete-btn" onclick="deleteMsg('${id}')">🗑️</span>`;
-
-        if (data.isSecure) {
-            bodyHtml += `
-                <div id="lock-${id}">
-                    <p style="color:#f472b6; margin:5px 0;">🔒 Locked (Expires in <span id="timer-${id}">60</span>s)</p>
-                    <input type="text" id="otp-in-${id}" placeholder="OTP" style="width:80px; padding:5px; margin:0;">
-                    <button style="width:auto; padding:5px 10px; font-size:12px;" onclick="unlock('${id}', '${data.otp}', '${data.payload}', ${data.expiry})">Unlock</button>
-                </div>
-                <div id="show-${id}" style="display:none; color:#38bdf8; font-weight:bold; margin-top:10px;"></div>
-            `;
-            startExpiryTimer(id, data.expiry);
-        } else {
-            const original = CryptoJS.AES.decrypt(data.payload, MASTER_KEY).toString(CryptoJS.enc.Utf8);
-            bodyHtml += `<div style="word-break:break-all;">${original}</div>`;
-        }
-
-        div.innerHTML = bodyHtml;
-        list.prepend(div);
-    }
-
-    function startExpiryTimer(id, expiry) {
-        const t = setInterval(() => {
+    // --- 5. TIMER & UNLOCK ---
+    function runTimer(id, expiry) {
+        const timerTask = setInterval(() => {
             const diff = expiry - Date.now();
             if (diff <= 0) {
-                clearInterval(t);
-                deleteMsg(id); // Auto-delete on timeout
+                clearInterval(timerTask);
+                const card = document.getElementById(`card-${id}`);
+                if (card) { 
+                    card.innerHTML = "<small style='color:gray;'>Data Expired & Deleted</small>";
+                    db.child(id).remove(); 
+                }
                 return;
             }
-            const display = document.getElementById(`timer-${id}`);
-            if (display) display.innerText = Math.floor(diff/1000);
+            const s = Math.floor((diff % 60000) / 1000);
+            const tDisplay = document.getElementById(`timer-${id}`);
+            if (tDisplay) tDisplay.innerText = `00:${s.toString().padStart(2, '0')}`;
         }, 1000);
     }
 
-    window.deleteMsg = (id) => {
-        db.child(id).remove();
-    };
-
     window.unlock = function(id, correct, payload, expiry) {
         const entered = document.getElementById(`otp-in-${id}`).value;
+        if (Date.now() > expiry) return alert("OTP Expired!");
+        
         if (entered === correct) {
-            const dec = CryptoJS.AES.decrypt(payload, MASTER_KEY).toString(CryptoJS.enc.Utf8);
+            const bytes = CryptoJS.AES.decrypt(payload, MASTER_KEY);
             document.getElementById(`lock-${id}`).style.display = "none";
-            document.getElementById(`show-${id}`).innerText = dec;
-            document.getElementById(`show-${id}`).style.display = "block";
+            const display = document.getElementById(`show-${id}`);
+            display.innerText = bytes.toString(CryptoJS.enc.Utf8);
+            display.style.display = "block";
         } else {
-            alert("Wrong OTP!");
+            alert("Incorrect OTP!");
         }
     };
 </script>
