@@ -1,23 +1,25 @@
 body{
 font-family:Arial;
-background:#f2f2f2;
 text-align:center;
 padding:40px;
+background:#f2f2f2;
 }
 
 textarea{
-width:400px;
+width:420px;
 height:120px;
 }
 
 button{
 padding:10px;
 margin:10px;
+cursor:pointer;
 }
 
 #messages{
 width:450px;
 margin:auto;
+margin-top:20px;
 background:white;
 padding:20px;
 border-radius:10px;
@@ -31,4 +33,5 @@ padding:10px;
 
 .locked{
 color:red;
+font-weight:bold;
 }
