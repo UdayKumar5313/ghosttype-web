@@ -21,104 +21,6 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const messagesRef = database.ref("clipboard");
 
-let currentOTP = null;
-let otpExpireTime = null;
-let timerInterval = null;
-
-
-
-function generateOTP(){
-
-if(!document.getElementById("enablePassword").checked){
-
-alert("Enable password option first");
-
-return;
-
-}
-
-currentOTP = Math.floor(100000 + Math.random()*900000).toString();
-
-document.getElementById("otpDisplay").innerText = "OTP: " + currentOTP;
-
-otpExpireTime = Date.now() + 60000;
-
-startTimer();
-
-}
-
-
-
-function startTimer(){
-
-clearInterval(timerInterval);
-
-timerInterval = setInterval(()=>{
-
-let remaining = otpExpireTime - Date.now();
-
-if(remaining <= 0){
-
-clearInterval(timerInterval);
-
-document.getElementById("timer").innerText="OTP expired";
-
-currentOTP=null;
-
-document.getElementById("otpDisplay").innerText="";
-
-return;
-
-}
-
-let minutes = Math.floor(remaining/60000);
-let seconds = Math.floor((remaining%60000)/1000);
-let ms = remaining % 1000;
-
-document.getElementById("timer").innerText =
-minutes + ":" + seconds + ":" + ms;
-
-},10);
-
-}
-
-
-
-function unlock(){
-
-if(!document.getElementById("enablePassword").checked){
-
-openApp();
-
-return;
-
-}
-
-let userOTP = document.getElementById("otpInput").value;
-
-if(userOTP === currentOTP){
-
-openApp();
-
-}else{
-
-document.getElementById("loginStatus").innerText="Wrong OTP";
-
-}
-
-}
-
-
-
-function openApp(){
-
-document.getElementById("loginBox").style.display="none";
-document.getElementById("app").style.display="block";
-
-startListening();
-
-}
-
 
 
 function sendText(){
@@ -127,12 +29,30 @@ let device = document.getElementById("deviceName").value || "Unknown";
 
 let text = document.getElementById("textInput").value;
 
+let secure = document.getElementById("secureMessage").checked;
+
 let time = new Date().toLocaleTimeString();
+
+let otp = null;
+let expire = null;
+
+if(secure){
+
+otp = Math.floor(100000 + Math.random()*900000).toString();
+
+expire = Date.now() + 60000;
+
+alert("OTP for this message: " + otp + " (valid 1 minute)");
+
+}
 
 messagesRef.push({
 
 device:device,
 text:text,
+secure:secure,
+otp:otp,
+expire:expire,
 time:time
 
 });
@@ -143,8 +63,6 @@ document.getElementById("textInput").value="";
 
 
 
-function startListening(){
-
 messagesRef.on("child_added", function(snapshot){
 
 let data = snapshot.val();
@@ -153,11 +71,49 @@ let div = document.createElement("div");
 
 div.className="message";
 
+if(!data.secure){
+
 div.innerHTML =
 "<b>"+data.device+"</b> ("+data.time+")<br>"+data.text;
+
+}else{
+
+div.innerHTML =
+"<b>"+data.device+"</b> ("+data.time+")<br>" +
+"<span class='locked'>🔒 Secure message</span>" +
+"<br><input placeholder='Enter OTP'>" +
+"<button>Unlock</button>";
+
+let input = div.querySelector("input");
+let button = div.querySelector("button");
+
+button.onclick=function(){
+
+let entered = input.value;
+
+if(Date.now() > data.expire){
+
+alert("OTP expired");
+
+return;
+
+}
+
+if(entered === data.otp){
+
+div.innerHTML =
+"<b>"+data.device+"</b> ("+data.time+")<br>"+data.text;
+
+}else{
+
+alert("Wrong OTP");
+
+}
+
+};
+
+}
 
 document.getElementById("messages").prepend(div);
 
 });
-
-}
