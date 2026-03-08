@@ -3,39 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostType Ultra | Secure Sync</title>
-    <link rel="stylesheet" href="style.css">
+    <title>GhostType Ultra | All-in-One</title>
+
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+    <style>
+        /* --- CSS SECTION --- */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: #0f172a; 
+            color: white; 
+            display: flex; 
+            justify-content: center; 
+            padding: 20px; 
+            margin: 0;
+        }
+        .main-card { 
+            background: #1e293b; 
+            width: 100%; 
+            max-width: 500px; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+            border: 1px solid #334155;
+        }
+        h1 { color: #38bdf8; text-align: center; margin-top: 0; }
+        input, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 15px; 
+            background: #0f172a; 
+            border: 1px solid #475569; 
+            color: white; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+        }
+        textarea { height: 100px; resize: none; }
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        button { 
+            background: #38bdf8; 
+            color: #0f172a; 
+            border: none; 
+            padding: 12px 25px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.3s;
+        }
+        button:hover { background: #7dd3fc; }
+        #otpAlert { color: #f472b6; font-weight: bold; text-align: center; font-family: monospace; font-size: 18px; }
+        .msg-card { 
+            background: #334155; 
+            padding: 15px; 
+            margin-top: 15px; 
+            border-radius: 12px; 
+            border-left: 5px solid #38bdf8; 
+            position: relative;
+        }
+        .secure { border-left-color: #f472b6; }
+        .timer { color: #f472b6; font-family: monospace; font-weight: bold; }
+        .meta { font-size: 11px; color: #94a3b8; margin-bottom: 5px; }
+    </style>
 </head>
 <body>
 
-    <div class="glass-panel">
-        <header>
-            <h1>GhostType <span class="badge">ULTRA</span></h1>
-            <p class="subtitle">End-to-End Encrypted Clipboard</p>
-        </header>
-        
-        <div class="input-group">
-            <input id="deviceName" placeholder="👤 Device Identity (e.g., iPhone 15)">
-            <textarea id="textInput" placeholder="Type or paste sensitive data..."></textarea>
-            
-            <div class="secure-toggle">
-                <input type="checkbox" id="secureCheck">
-                <label for="secureCheck">🔒 Enable OTP & Auto-Destruct</label>
-            </div>
-            
-            <button onclick="sendData()" class="primary-btn">Sync to Cloud</button>
-            <div id="otpDisplay" class="otp-banner"></div>
-        </div>
-
-        <div class="history-section">
-            <h3><span class="dot"></span> Live Stream</h3>
-            <div id="messages"></div>
-        </div>
+<div class="main-card">
+    <h1>GhostType <span style="font-size: 0.5em; vertical-align: middle; opacity: 0.6;">v3.0</span></h1>
+    
+    <input id="deviceName" placeholder="👤 Device Name (e.g. My PC)">
+    <textarea id="textInput" placeholder="Paste sensitive text here..."></textarea>
+    
+    <div class="row">
+        <label><input type="checkbox" id="secureCheck"> 🔒 Lock with OTP</label>
+        <button onclick="sendData()">Sync Clipboard</button>
     </div>
+    
+    <div id="otpAlert"></div>
 
-    <script src="app.js"></script>
+    <hr style="border: 0; border-top: 1px solid #475569; margin: 25px 0;">
+    
+    <div id="messages"></div>
+</div>
+
+
+
+<script>
+    /* --- JAVASCRIPT SECTION --- */
+    
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyDRsNoO7wS4tY9G_VFwRTsTDWwHaYbJGl4",
+        authDomain: "ghosttype-67c57.firebaseapp.com",
+        databaseURL: "https://ghosttype-67c57-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "ghosttype-67c57",
+        storageBucket: "ghosttype-67c57.firebasestorage.app",
+        messagingSenderId: "965426759949",
+        appId: "1:965426759949:web:08740170d41fda24478844"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database().ref("global_sync");
+    const SECRET_PHRASE = "BRECW_GHOST_2026";
+
+    // SEND FUNCTION
+    function sendData() {
+        const device = document.getElementById("deviceName").value || "Generic Device";
+        const text = document.getElementById("textInput").value;
+        const isSecure = document.getElementById("secureCheck").checked;
+
+        if (!text) return alert("Input is empty!");
+
+        // CLIENT-SIDE AES ENCRYPTION
+        const encrypted = CryptoJS.AES.encrypt(text, SECRET_PHRASE).toString();
+
+        let otp = null;
+        let expiry = null;
+
+        if (isSecure) {
+            otp = Math.floor(100000 + Math.random() * 900000).toString();
+            expiry = Date.now() + 60000; // 60 Seconds
+            document.getElementById("otpAlert").innerText = "CONFIDENTIAL OTP: " + otp;
+        } else {
+            document.getElementById("otpAlert").innerText = "";
+        }
+
+        db.push({
+            device,
+            payload: encrypted,
+            isSecure,
+            otp,
+            expiry,
+            time: new Date().toLocaleTimeString()
+        });
+
+        document.getElementById("textInput").value = "";
+    }
+
+    // RECEIVE FUNCTION
+    db.on("child_added", (snap) => {
+        const data = snap.val();
+        const id = snap.key;
+        const container = document.getElementById("messages");
+
+        const div = document.createElement("div");
+        div.className = data.isSecure ? "msg-card secure" : "msg-card";
+        div.id = `card-${id}`;
+
+        let baseHtml = `<div class="meta">${data.device} • ${data.time}</div>`;
+
+        if (data.isSecure) {
+            baseHtml += `
+                <div id="lock-${id}">
+                    <p style="margin:5px 0;">🔒 <b>Locked Packet</b></p>
+                    <span id="timer-${id}" class="timer">01:00:000</span><br><br>
+                    <input type="text" id="otp-in-${id}" placeholder="OTP" style="width:80px; margin-bottom:0; padding:5px;">
+                    <button style="padding:5px 10px; font-size:12px;" onclick="unlockData('${id}', '${data.otp}', '${data.payload}', ${data.expiry})">Unlock</button>
+                </div>
+                <div id="show-${id}" style="display:none; color:#38bdf8; word-break:break-all; font-weight:bold;"></div>
+            `;
+            startCountdown(id, data.expiry);
+        } else {
+            const bytes = CryptoJS.AES.decrypt(data.payload, SECRET_PHRASE);
+            const originalText = bytes.toString(CryptoJS.enc.Utf8);
+            baseHtml += `<div style="word-break:break-all;">${originalText}</div>`;
+        }
+
+        div.innerHTML = baseHtml;
+        container.prepend(div);
+    });
+
+    // TIMER LOGIC
+    function startCountdown(id, expiry) {
+        const timerTask = setInterval(() => {
+            const diff = expiry - Date.now();
+            if (diff <= 0) {
+                clearInterval(timerTask);
+                if(document.getElementById(`card-${id}`)) {
+                    document.getElementById(`card-${id}`).innerHTML = "<p style='color:#94a3b8; font-size:12px;'>Data Purged: OTP Expired</p>";
+                    db.child(id).remove(); // Auto-destruct from Firebase
+                }
+                return;
+            }
+            const s = Math.floor((diff % 60000) / 1000);
+            const ms = diff % 1000;
+            const el = document.getElementById(`timer-${id}`);
+            if(el) el.innerText = `${s.toString().padStart(2,'0')}:${ms.toString().padStart(3,'0')}`;
+        }, 50);
+    }
+
+    // UNLOCK LOGIC
+    window.unlockData = (id, correctOtp, payload, expiry) => {
+        const entered = document.getElementById(`otp-in-${id}`).value;
+        if (Date.now() > expiry) return alert("Expired!");
+
+        if (entered === correctOtp) {
+            const bytes = CryptoJS.AES.decrypt(payload, SECRET_PHRASE);
+            const originalText = bytes.toString(CryptoJS.enc.Utf8);
+            
+            document.getElementById(`lock-${id}`).style.display = "none";
+            const display = document.getElementById(`show-${id}`);
+            display.innerText = originalText;
+            display.style.display = "block";
+        } else {
+            alert("Wrong OTP!");
+        }
+    };
+</script>
+
 </body>
 </html>
