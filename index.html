@@ -3,202 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostType Ultra | 2026 Platinum Build</title>
+    <title>GhostType Ultra | 2026 Multi-Tool</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
-        :root { 
-            --p: #38bdf8; 
-            --s: #f472b6; 
-            --bg: #0f172a; 
-            --g: rgba(255, 255, 255, 0.03); 
-            --b: rgba(255, 255, 255, 0.08); 
-            --t: #f8fafc;
-            --danger: #fb7185;
-            --success: #4ade80;
-        }
-
-        * { box-sizing: border-box; }
-
-        body { 
-            background: radial-gradient(circle at top left, #1e293b, #0f172a); 
-            color: var(--t); 
-            font-family: 'Inter', -apple-system, sans-serif; 
-            margin: 0; 
-            padding: 10px; 
-            min-height: 100vh; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            overflow-x: hidden; 
-        }
-
-        /* --- Visual Hierarchy & Glassmorphism --- */
-        .glass { 
-            background: var(--g); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px); 
-            border: 1px solid var(--b); 
-            border-radius: 24px; 
-            padding: 24px; 
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); 
-        }
-
-        #auth-container { width: 100%; max-width: 400px; }
-
-        #app-container { 
-            display: none; 
-            width: 100%; 
-            max-width: 1100px; 
-            grid-template-columns: 1fr; 
-            gap: 20px; 
-        }
-
-        /* --- Enhanced Mobile Responsiveness --- */
-        @media (min-width: 850px) { 
-            #app-container { grid-template-columns: 380px 1fr; align-items: start; } 
-            .sticky { position: sticky; top: 20px; }
-            body { padding: 40px; }
-        }
-
-        /* --- UI Elements --- */
-        input, textarea { 
-            width: 100%; 
-            background: rgba(0,0,0,0.3); 
-            border: 1px solid var(--b); 
-            color: var(--t); 
-            border-radius: 12px; 
-            padding: 14px; 
-            margin-bottom: 12px; 
-            font-size: 14px; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-
-        input:focus, textarea:focus { 
-            border-color: var(--p); 
-            background: rgba(0,0,0,0.5);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); 
-            outline: none; 
-        }
-
-        .btn-p { 
-            background: linear-gradient(135deg, var(--p), #818cf8); 
-            color: #0f172a; 
-            border: none; 
-            padding: 16px; 
-            border-radius: 14px; 
-            font-weight: 800; 
-            width: 100%; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            text-transform: uppercase; 
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-p:active { transform: scale(0.98); }
-        .btn-p:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        /* --- Message Cards Hierarchy --- */
-        .msg-card { 
-            background: rgba(255,255,255,0.025); 
-            border: 1px solid var(--b); 
-            padding: 20px; 
-            margin-bottom: 16px; 
-            border-radius: 20px; 
-            transition: transform 0.3s;
-        }
+        :root { --p: #38bdf8; --s: #f472b6; --bg: #0f172a; --g: rgba(255,255,255,0.03); --b: rgba(255,255,255,0.08); --t: #f8fafc; --danger: #fb7185; }
+        body { background: #0f172a; color: var(--t); font-family: 'Inter', sans-serif; margin: 0; padding: 15px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .glass { background: var(--g); backdrop-filter: blur(25px); border: 1px solid var(--b); border-radius: 24px; padding: 25px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 100%; }
+        #app-container { display: none; max-width: 1100px; grid-template-columns: 1fr; gap: 20px; width: 100%; }
+        @media (min-width: 850px) { #app-container { display: grid; grid-template-columns: 380px 1fr; } .sticky { position: sticky; top: 20px; } }
         
-        .msg-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-        .msg-meta { font-size: 11px; color: #94a3b8; font-family: monospace; }
-        .msg-body { font-size: 15px; line-height: 1.6; word-break: break-all; color: #e2e8f0; }
-
-        /* --- Loading States --- */
-        .loader { width: 20px; height: 20px; border: 2px solid #fff; border-bottom-color: transparent; border-radius: 50%; display: none; animation: rotation 1s linear infinite; margin: 0 auto; }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* --- OTP/Unlock Flow Improvement --- */
-        .otp-input-group { 
-            display: flex; 
-            gap: 10px; 
-            margin-top: 15px; 
-            background: rgba(0,0,0,0.2); 
-            padding: 12px; 
-            border-radius: 16px;
-        }
+        input, textarea, select { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--b); color: var(--t); border-radius: 12px; padding: 12px; margin-bottom: 10px; font-size: 13px; }
+        .btn-p { background: linear-gradient(135deg, var(--p), #818cf8); color: #0f172a; border: none; padding: 14px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; transition: 0.2s; }
+        .btn-p:hover { opacity: 0.9; transform: translateY(-1px); }
         
-        .bar-wrap { height: 4px; background: rgba(255,255,255,0.05); width: 100%; border-radius: 10px; margin: 10px 0; overflow: hidden; }
-        .bar { height: 100%; background: var(--s); width: 100%; transition: width 1s linear; }
-
-        .status-dot { height: 8px; width: 8px; background: var(--success); border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 8px var(--success); }
-        .badge { font-size: 10px; background: var(--b); color: var(--p); padding: 4px 10px; border-radius: 20px; text-transform: uppercase; font-weight: bold; }
+        .msg-card { background: rgba(255,255,255,0.02); border: 1px solid var(--b); padding: 18px; margin-bottom: 15px; border-radius: 18px; position: relative; }
+        .badge { font-size: 9px; background: var(--b); color: var(--p); padding: 3px 8px; border-radius: 5px; text-transform: uppercase; font-weight: bold; margin-right: 5px; }
+        .file-box { background: rgba(56, 189, 248, 0.1); border: 1px dashed var(--p); padding: 10px; border-radius: 10px; margin-top: 10px; text-align: center; cursor: pointer; }
+        
+        /* Markdown override */
+        .markdown-body { font-size: 14px; line-height: 1.5; color: #cbd5e1; }
+        .markdown-body code { background: #1e293b; padding: 2px 4px; border-radius: 4px; font-family: monospace; }
+        
+        #session-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.98); z-index: 100; display: none; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
     </style>
 </head>
-<body class="animate__animated animate__fadeIn">
+<body>
 
-    <div id="auth-container" class="glass animate__animated animate__zoomIn">
-        <h1 id="auth-title" style="color: var(--p); margin: 0 0 5px 0; font-size: 28px; letter-spacing: -1px;">GhostType</h1>
-        <p style="font-size: 13px; color: #64748b; margin-bottom: 25px;">Node Authentication Required</p>
-        
-        <input type="email" id="email" placeholder="Email ID">
-        <input type="password" id="pass" placeholder="Password">
-        
-        <button id="auth-btn" class="btn-p" onclick="handleAuth()">
-            <span id="btn-text">Initialize Sync</span>
-            <div id="auth-loader" class="loader"></div>
-        </button>
-        
-        <p id="toggle-link" style="font-size: 12px; color: #94a3b8; margin-top: 20px; cursor: pointer; text-decoration: underline;" onclick="toggleMode()">Request New Node Access</p>
-        <p id="auth-error" style="color: var(--danger); font-size: 11px; margin-top: 15px;"></p>
+    <div id="session-overlay" class="animate__animated animate__fadeIn">
+        <div class="glass" style="max-width: 400px; text-align: center;">
+            <h2 style="color:var(--p)">Session Key Required</h2>
+            <p style="font-size: 12px; color:#64748b;">This key stays on your device. It is NEVER sent to the server. Data cannot be decrypted without it.</p>
+            <input type="password" id="sessionKey" placeholder="Enter Vault Key (AES-256)">
+            <button class="btn-p" onclick="unlockSession()">Unlock Local Vault</button>
+        </div>
+    </div>
+
+    <div id="auth-container" class="glass" style="max-width: 400px; text-align: center;">
+        <h1 style="color: var(--p); margin:0;">GhostType <span style="font-size: 12px; vertical-align: middle; opacity: 0.5;">v2026</span></h1>
+        <p style="font-size: 12px; color: #64748b; margin-bottom: 25px;">Encrypted Relay Protocol</p>
+        <input type="email" id="email" placeholder="Node Email">
+        <input type="password" id="pass" placeholder="Node Password">
+        <button class="btn-p" onclick="handleAuth()">Initialize Sync</button>
+        <p id="auth-error" style="color: var(--danger); font-size: 11px; margin-top: 10px;"></p>
     </div>
 
     <div id="app-container">
         <div class="sticky">
-            <div class="glass animate__animated animate__fadeInLeft">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h2 style="margin:0; font-size:14px; letter-spacing:2px; color:var(--p);">UPLINK CONTROL</h2>
-                    <button onclick="logout()" style="background:none; border: 1px solid var(--danger); color: var(--danger); font-size: 10px; padding: 4px 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">DISCONNECT</button>
-                </div>
-                
-                <input id="deviceName" placeholder="👤 Node Identity (e.g. Work-PC)" oninput="localStorage.setItem('gName', this.value)">
-                <textarea id="textInput" rows="4" placeholder="Input sensitive payload for relay..."></textarea>
-                
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:20px; padding: 0 5px;">
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
-                        <input type="checkbox" id="isSec" style="width:auto; margin:0;"> 🔒 High-Sec Mode
-                    </label>
-                    <span id="stats" style="color:#64748b;">Ready</span>
-                </div>
-                
-                <button class="btn-p" onclick="sendData()">Push to Cloud</button>
-                
-                <div id="otpDisplayContainer" style="display:none; margin-top:20px; padding:15px; background:rgba(244,114,182,0.1); border-radius:12px; text-align:center; border: 1px dashed var(--s);">
-                    <div style="font-size:10px; color:var(--s); margin-bottom:5px;">TEMPORARY ACCESS KEY</div>
-                    <div id="otpDisplay" style="font-family: monospace; font-size: 24px; font-weight: bold; color:var(--s);"></div>
+            <div class="glass">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                    <span class="badge" id="current-channel">CHANNEL: DEFAULT</span>
+                    <button onclick="logout()" style="background:none; border:none; color:var(--danger); font-size:10px; cursor:pointer;">LOGOUT</button>
                 </div>
 
-                <div id="net-status" style="margin-top:25px; text-align:center; font-size:10px; color:#64748b; letter-spacing: 1px;">
-                    <span class="status-dot"></span> ENCRYPTED CHANNEL ACTIVE
+                <input id="channelID" placeholder="Channel ID (Shared Key)" oninput="updateChannel(this.value)">
+                
+                <textarea id="textInput" rows="4" placeholder="Type message or paste code..."></textarea>
+                
+                <input type="file" id="fileInput" style="display:none" onchange="handleFile(this)">
+                <div class="file-box" onclick="document.getElementById('fileInput').click()">
+                    <span id="file-label">📎 Attach Small File (< 1MB)</span>
                 </div>
+
+                <div style="display:flex; flex-wrap:wrap; gap:10px; font-size:11px; margin: 15px 0;">
+                    <label><input type="checkbox" id="isSec"> 🔒 OTP Lock</label>
+                    <label><input type="checkbox" id="isBurn"> 🔥 Burn on Read</label>
+                </div>
+                
+                <button class="btn-p" onclick="sendData()">Push Encrypted Payload</button>
+                
+                <div id="otpDisplay" style="text-align:center; color:var(--s); font-family:monospace; font-size:24px; margin-top:15px;"></div>
             </div>
         </div>
 
-        <div class="glass animate__animated animate__fadeInRight">
-            <h2 style="margin:0 0 25px 0; font-size:18px; display:flex; align-items:center; gap:10px;">
-                <span style="color:var(--p)">●</span> Relay Stream
-            </h2>
+        <div class="glass">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="margin:0; font-size:16px;">Secure Relay Stream</h2>
+                <button onclick="clearCloud()" style="font-size:9px; background:rgba(251,113,133,0.1); color:var(--danger); border:1px solid var(--danger); padding:4px 8px; border-radius:5px; cursor:pointer;">WIPE CLOUD</button>
+            </div>
             <div id="msgs"></div>
         </div>
     </div>
 
 <script>
-    // Config & Init (Same logic, improved UX feedback)
+    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
         apiKey: "AIzaSyDRsNoO7wS4tY9G_VFwRTsTDWwHaYbJGl4",
         authDomain: "ghosttype-67c57.firebaseapp.com",
@@ -211,78 +105,87 @@
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.database().ref("v7_master_sync");
-    const MASTER_KEY = "GHOST_ULTRA_2026_KEY";
+    let currentChannel = "v7_master_sync";
+    let LOCAL_VAULT_KEY = "";
+    let pendingFile = null;
 
-    let isLoginMode = true;
-
-    function toggleMode() {
-        isLoginMode = !isLoginMode;
-        document.getElementById("auth-title").innerText = isLoginMode ? "GhostType" : "New Node";
-        document.getElementById("auth-btn").querySelector('#btn-text').innerText = isLoginMode ? "Initialize Sync" : "Register Node";
+    // --- SESSION MGMT ---
+    function unlockSession() {
+        const key = document.getElementById('sessionKey').value;
+        if(key.length < 4) return alert("Key too short.");
+        LOCAL_VAULT_KEY = key;
+        document.getElementById('session-overlay').style.display = 'none';
+        initApp();
     }
 
     function handleAuth() {
         const email = document.getElementById('email').value;
         const pass = document.getElementById('pass').value;
-        const btnText = document.getElementById('btn-text');
-        const loader = document.getElementById('auth-loader');
-        
-        if(!email || !pass) return;
-
-        btnText.style.display = 'none';
-        loader.style.display = 'block';
-
-        const authAction = isLoginMode ? 
-            auth.signInWithEmailAndPassword(email, pass) : 
-            auth.createUserWithEmailAndPassword(email, pass);
-
-        authAction.catch(e => {
-            document.getElementById('auth-error').innerText = e.message;
-            btnText.style.display = 'block';
-            loader.style.display = 'none';
-        });
+        auth.signInWithEmailAndPassword(email, pass).catch(e => document.getElementById('auth-error').innerText = e.message);
     }
-
-    function logout() { auth.signOut().then(() => location.reload()); }
 
     auth.onAuthStateChanged(user => {
         if (user) {
             document.getElementById('auth-container').style.display = 'none';
-            document.getElementById('app-container').style.display = 'grid';
-            initApp();
+            document.getElementById('session-overlay').style.display = 'flex';
         }
     });
 
-    function initApp() {
-        document.getElementById("deviceName").value = localStorage.getItem('gName') || "";
-        db.on("child_added", snap => renderCard(snap.key, snap.val()));
-        db.on("child_removed", snap => {
-            const el = document.getElementById(`msg-${snap.key}`);
-            if(el) { el.classList.add('animate__animated', 'animate__fadeOutRight'); setTimeout(() => el.remove(), 500); }
-        });
+    function logout() { auth.signOut().then(() => location.reload()); }
+
+    function updateChannel(val) {
+        currentChannel = val ? `chan_${val.replace(/\s/g, '_')}` : "v7_master_sync";
+        document.getElementById('current-channel').innerText = `CHANNEL: ${currentChannel.toUpperCase()}`;
+        document.getElementById('msgs').innerHTML = "";
+        firebase.database().ref(currentChannel).off();
+        initApp();
     }
 
-    function sendData() {
-        const text = document.getElementById("textInput").value.trim();
-        const dev = document.getElementById("deviceName").value || "Phantom_Node";
-        const secure = document.getElementById("isSec").checked;
-        
-        if(!text) return;
+    function initApp() {
+        const db = firebase.database().ref(currentChannel);
+        db.on("child_added", snap => renderCard(snap.key, snap.val()));
+        db.on("child_removed", snap => document.getElementById(`msg-${snap.key}`)?.remove());
+    }
 
-        const encrypted = CryptoJS.AES.encrypt(text, MASTER_KEY).toString();
+    // --- FILE HANDLING ---
+    function handleFile(input) {
+        const file = input.files[0];
+        if(file.size > 1024 * 1024) return alert("File too large (>1MB)");
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            pendingFile = { name: file.name, data: e.target.result };
+            document.getElementById('file-label').innerText = `✅ ${file.name} ready`;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // --- CORE LOGIC ---
+    function sendData() {
+        const text = document.getElementById("textInput").value;
+        const secure = document.getElementById("isSec").checked;
+        const burn = document.getElementById("isBurn").checked;
+        
+        if(!text && !pendingFile) return;
+
+        const payloadObj = { text, file: pendingFile };
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(payloadObj), LOCAL_VAULT_KEY).toString();
+        
         let otp = secure ? Math.floor(100000 + Math.random()*900000).toString() : null;
         let exp = secure ? Date.now() + 60000 : null;
 
-        if(secure) {
-            document.getElementById("otpDisplayContainer").style.display = "block";
-            document.getElementById("otpDisplay").innerText = otp;
-        } else {
-            document.getElementById("otpDisplayContainer").style.display = "none";
-        }
+        if(secure) document.getElementById("otpDisplay").innerText = `OTP: ${otp}`;
+        
+        firebase.database().ref(currentChannel).push({
+            payload: encrypted,
+            secure, burn, otp, exp,
+            time: new Date().toLocaleTimeString(),
+            node: "Node_" + Math.floor(Math.random()*99)
+        });
 
-        db.push({ dev, payload: encrypted, secure, otp, exp, time: new Date().toLocaleTimeString() });
+        // Reset
         document.getElementById("textInput").value = "";
+        document.getElementById("file-label").innerText = "📎 Attach Small File (< 1MB)";
+        pendingFile = null;
     }
 
     function renderCard(id, data) {
@@ -291,73 +194,74 @@
         card.className = "msg-card animate__animated animate__fadeInUp";
         card.id = `msg-${id}`;
 
-        let html = `
-            <div class="msg-header">
-                <div class="msg-meta">
-                    <span class="badge">AES-256</span> 
-                    <span>${data.time}</span>
-                </div>
-                <div onclick="db.child('${id}').remove()" style="cursor:pointer; font-size:14px; color:#64748b;">✕</div>
-            </div>
-            <div style="color:var(--p); font-size:12px; font-weight:bold; margin-bottom:8px;">👤 ${data.dev}</div>
-        `;
+        let html = `<div style="display:flex; justify-content:space-between;">
+                        <div>
+                            <span class="badge">CHNL</span>
+                            ${data.burn ? '<span class="badge" style="color:var(--danger)">🔥 BURN</span>' : ''}
+                        </div>
+                        <span onclick="firebase.database().ref(currentChannel).child('${id}').remove()" style="cursor:pointer; opacity:0.3;">✕</span>
+                    </div>
+                    <div style="font-size:10px; color:#64748b; margin: 8px 0;">${data.node} • ${data.time}</div>`;
 
         if(data.secure) {
-            html += `
-                <div class="bar-wrap"><div class="bar" id="bar-${id}"></div></div>
-                <div id="lock-${id}">
-                    <p style="font-size:11px; color:var(--s); margin:10px 0;">Locked Temporal Packet</p>
-                    <div class="otp-input-group">
-                        <input id="in-${id}" placeholder="OTP" style="margin:0; flex:1; padding:10px;">
-                        <button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" class="btn-p" style="width:auto; padding:0 20px; font-size:11px;">Unlock</button>
-                    </div>
-                </div>
-                <div id="show-${id}" class="msg-body" style="display:none; margin-top:15px; background:rgba(0,0,0,0.2); padding:15px; border-radius:12px; border-left:3px solid var(--p);"></div>
-            `;
-            handleTimer(id, data.exp);
+            html += `<div id="lock-${id}">
+                        <input id="in-${id}" placeholder="Enter OTP" style="margin:0; width:80px; padding:5px;">
+                        <button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.burn})" class="btn-p" style="width:auto; padding:5px 15px; font-size:10px;">DECRYPT</button>
+                     </div>`;
         } else {
-            const dec = CryptoJS.AES.decrypt(data.payload, MASTER_KEY).toString(CryptoJS.enc.Utf8);
-            html += `
-                <div class="msg-body">${dec}</div>
-                <button onclick="copyTo('${id}', \`${dec}\`)" id="copy-${id}" style="background:var(--b); border:none; border-radius:8px; font-size:10px; padding:8px 15px; margin-top:15px; cursor:pointer; color:var(--p); font-weight:bold; transition:0.3s;">COPY TO CLIPBOARD</button>
-            `;
+            html += `<div id="cont-${id}">${processPayload(data.payload, id, data.burn)}</div>`;
         }
-        
+
         card.innerHTML = html;
         container.prepend(card);
     }
 
-    function handleTimer(id, exp) {
-        const itv = setInterval(() => {
-            const diff = exp - Date.now();
-            if(diff <= 0) { clearInterval(itv); db.child(id).remove(); return; }
-            const b = document.getElementById(`bar-${id}`);
-            if(b) b.style.width = (diff/60000*100) + "%";
-        }, 1000);
+    function processPayload(encrypted, id, burn) {
+        try {
+            const bytes = CryptoJS.AES.decrypt(encrypted, LOCAL_VAULT_KEY);
+            const decrypted = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+            
+            let content = "";
+            // 3. Markdown Rendering
+            if(decrypted.text) content += `<div class="markdown-body">${marked.parse(decrypted.text)}</div>`;
+            
+            if(decrypted.file) {
+                content += `<button onclick="downloadFile('${decrypted.file.data}', '${decrypted.file.name}')" class="btn-p" style="margin-top:10px; font-size:10px;">💾 Download ${decrypted.file.name}</button>`;
+            }
+
+            // 4. Burn on Read Logic
+            if(burn) {
+                setTimeout(() => {
+                    firebase.database().ref(currentChannel).child(id).remove();
+                }, 2000);
+            }
+
+            return content;
+        } catch(e) {
+            return `<div style="color:var(--danger); font-size:11px;">[Vault Key Mismatch: Encrypted]</div>`;
+        }
     }
 
-    window.unlock = (id, correct, payload, exp) => {
-        const val = document.getElementById(`in-${id}`).value;
-        if(val === correct && Date.now() < exp) {
-            const dec = CryptoJS.AES.decrypt(payload, MASTER_KEY).toString(CryptoJS.enc.Utf8);
-            document.getElementById(`lock-${id}`).style.display="none";
-            const display = document.getElementById(`show-${id}`);
-            display.innerText = dec;
-            display.style.display="block";
-            navigator.clipboard.writeText(dec);
+    window.unlock = (id, correct, payload, burn) => {
+        if(document.getElementById(`in-${id}`).value === correct) {
+            document.getElementById(`lock-${id}`).innerHTML = processPayload(payload, id, burn);
         } else {
-            document.getElementById(`msg-${id}`).classList.add('animate__shakeX');
-            setTimeout(() => document.getElementById(`msg-${id}`).classList.remove('animate__shakeX'), 500);
+            alert("Wrong OTP");
         }
     };
 
-    window.copyTo = (id, txt) => { 
-        navigator.clipboard.writeText(txt);
-        const btn = document.getElementById(`copy-${id}`);
-        btn.innerText = "COPIED!";
-        btn.style.color = "var(--success)";
-        setTimeout(() => { btn.innerText = "COPY TO CLIPBOARD"; btn.style.color = "var(--p)"; }, 2000);
+    window.downloadFile = (data, name) => {
+        const link = document.createElement("a");
+        link.href = data;
+        link.download = name;
+        link.click();
     };
+
+    function clearCloud() {
+        if(confirm("Wipe all data in this channel?")) {
+            firebase.database().ref(currentChannel).remove();
+        }
+    }
 </script>
 </body>
 </html>
