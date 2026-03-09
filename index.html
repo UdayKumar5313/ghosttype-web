@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostType Ultra | Register & Sync</title>
+    <title>GhostType Ultra | Enterprise Security</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -15,60 +15,66 @@
         :root { --p: #38bdf8; --s: #f472b6; --bg: #0f172a; --g: rgba(255,255,255,0.05); --b: rgba(255,255,255,0.1); --t: #f8fafc; }
         body { background: var(--bg); color: var(--t); font-family: 'Inter', sans-serif; margin: 0; padding: 15px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
         
-        /* Auth Screen */
-        #auth-container { width: 100%; max-width: 400px; text-align: center; }
         .glass { background: var(--g); backdrop-filter: blur(12px); border: 1px solid var(--b); border-radius: 24px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        #auth-container { width: 100%; max-width: 400px; text-align: center; }
         
-        /* Main App Layout */
-        #app-container { display: none; width: 100%; max-width: 950px; grid-template-columns: 1fr; gap: 20px; }
-        @media (min-width: 768px) { #app-container { display: grid; grid-template-columns: 380px 1fr; align-items: start; } .sticky { position: sticky; top: 15px; } }
-
-        h1 { color: var(--p); margin: 0 0 10px 0; font-size: 22px; display: flex; justify-content: space-between; align-items: center; }
+        .pass-container { position: relative; width: 100%; }
+        .toggle-btn { position: absolute; right: 12px; top: 12px; cursor: pointer; font-size: 14px; opacity: 0.6; color: var(--t); }
+        
         input, textarea { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--b); color: var(--t); border-radius: 12px; padding: 12px; margin-bottom: 12px; box-sizing: border-box; }
-        .btn-p { background: var(--p); color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; }
-        .btn-p:hover { transform: scale(1.02); }
+        .btn-p { background: var(--p); color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; margin-top: 5px; }
+        .btn-google { background: white; color: #000; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px; }
         
-        .toggle-text { font-size: 12px; color: #94a3b8; margin-top: 15px; cursor: pointer; text-decoration: underline; }
+        #app-container { display: none; width: 100%; max-width: 950px; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 768px) { #app-container { display: grid; grid-template-columns: 380px 1fr; align-items: start; } }
+        
         .msg-card { background: var(--g); border: 1px solid var(--b); padding: 15px; margin-bottom: 15px; border-radius: 18px; position: relative; }
         .logout-btn { background: none; border: 1px solid var(--s); color: var(--s); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="auth-container" class="glass animate__animated animate__zoomIn">
-        <h1 id="auth-title" style="justify-content: center;">Login to GhostType</h1>
-        <p id="auth-desc" style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;">Secure clipboard synchronization</p>
+    <div id="auth-container" class="glass animate__animated animate__fadeIn">
+        <h1 style="color: var(--p); font-size: 24px; margin-bottom: 5px;">GhostType Ultra</h1>
+        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 25px;">Enterprise Grade Clipboard Sync</p>
         
         <input type="email" id="email" placeholder="Email Address">
-        <input type="password" id="pass" placeholder="Password">
         
-        <button id="auth-btn" class="btn-p" onclick="handleAuth()">Sign In</button>
+        <div class="pass-container">
+            <input type="password" id="pass" placeholder="Password">
+            <span class="toggle-btn" onclick="togglePassword()">👁️</span>
+        </div>
         
-        <p id="toggle-link" class="toggle-text" onclick="toggleAuthMode()">New user? Register here</p>
+        <button class="btn-p" onclick="handleAuth(true)">Login / Register</button>
+        
+        <div style="margin: 20px 0; border-bottom: 1px solid var(--b); position: relative;">
+            <span style="position: absolute; top: -10px; left: 42%; background: #1a1e2e; padding: 0 10px; font-size: 10px; color: #64748b;">OR</span>
+        </div>
+
+        <button class="btn-p btn-google" onclick="googleSignIn()">
+            <img src="https://img.icons8.com/color/24/000000/google-logo.png"/> Continue with Google
+        </button>
+        
         <p id="auth-error" style="color: var(--s); font-size: 11px; margin-top: 10px;"></p>
     </div>
 
     <div id="app-container">
-        <div class="sticky">
+        <div class="sticky" style="position: sticky; top: 15px;">
             <div class="glass">
-                <h1>GT ULTRA <button class="logout-btn" onclick="logout()">LOGOUT</button></h1>
-                <input id="deviceName" placeholder="👤 Device Name" oninput="localStorage.setItem('gName', this.value)">
-                <textarea id="textInput" placeholder="Paste sensitive text..."></textarea>
-                <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--p); margin-bottom:12px;">
-                    <label><input type="checkbox" id="isSec"> 🔒 OTP Lock</label>
-                </div>
-                <button class="btn-p" onclick="sendData()">Sync Clipboard</button>
-                <div id="otpDisplay" style="text-align:center; color:var(--s); font-weight:bold; margin-top:15px;"></div>
+                <h1 style="display: flex; justify-content: space-between; align-items: center; color: var(--p); font-size: 20px;">
+                    SYNC PANEL <button class="logout-btn" onclick="logout()">LOGOUT</button>
+                </h1>
+                <input id="deviceName" placeholder="👤 Identity (e.g. Uday's Phone)">
+                <textarea id="textInput" placeholder="Paste data to sync..."></textarea>
+                <button class="btn-p" onclick="sendData()">⚡ Sync Clipboard</button>
             </div>
         </div>
 
         <div class="glass">
-            <h2 style="margin:0 0 20px 0; font-size:18px;">Cloud Stream</h2>
+            <h2 style="margin:0 0 20px 0; font-size:18px;">History Stream</h2>
             <div id="msgs"></div>
         </div>
     </div>
-
-
 
 <script>
     const firebaseConfig = {
@@ -86,34 +92,31 @@
     const db = firebase.database().ref("v7_master_sync");
     const MASTER_KEY = "GHOST_ULTRA_2026_KEY";
 
-    let isLoginMode = true;
+    // --- AUTH LOGIC ---
+    function togglePassword() {
+        const p = document.getElementById("pass");
+        p.type = p.type === "password" ? "text" : "password";
+    }
 
-    function toggleAuthMode() {
-        isLoginMode = !isLoginMode;
-        document.getElementById('auth-title').innerText = isLoginMode ? "Login to GhostType" : "Register Account";
-        document.getElementById('auth-btn').innerText = isLoginMode ? "Sign In" : "Register";
-        document.getElementById('toggle-link').innerText = isLoginMode ? "New user? Register here" : "Already have an account? Login";
-        document.getElementById('auth-error').innerText = "";
+    function googleSignIn() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider).catch(e => {
+            document.getElementById('auth-error').innerText = e.message;
+        });
     }
 
     function handleAuth() {
         const email = document.getElementById('email').value;
         const pass = document.getElementById('pass').value;
-
-        if (isLoginMode) {
-            auth.signInWithEmailAndPassword(email, pass).catch(e => {
+        // Attempt login, if fails, attempt register (simplified for demo)
+        auth.signInWithEmailAndPassword(email, pass).catch(() => {
+            auth.createUserWithEmailAndPassword(email, pass).catch(e => {
                 document.getElementById('auth-error').innerText = e.message;
             });
-        } else {
-            auth.createUserWithEmailAndPassword(email, pass).then(() => {
-                alert("Account created successfully! Logging you in...");
-            }).catch(e => {
-                document.getElementById('auth-error').innerText = e.message;
-            });
-        }
+        });
     }
 
-    function logout() { auth.signOut(); location.reload(); }
+    function logout() { auth.signOut().then(() => location.reload()); }
 
     auth.onAuthStateChanged(user => {
         if (user) {
@@ -130,53 +133,23 @@
     function initApp() {
         document.getElementById("deviceName").value = localStorage.getItem('gName') || "";
         db.on("child_added", snap => renderCard(snap.key, snap.val()));
-        db.on("child_removed", snap => {
-            const el = document.getElementById(`msg-${snap.key}`);
-            if(el) el.remove();
-        });
     }
 
     function sendData() {
         const text = document.getElementById("textInput").value.trim();
         const dev = document.getElementById("deviceName").value || "Node";
-        const secure = document.getElementById("isSec").checked;
         if(!text) return;
-
         const encrypted = CryptoJS.AES.encrypt(text, MASTER_KEY).toString();
-        let otp = secure ? Math.floor(100000 + Math.random()*900000).toString() : null;
-        let exp = secure ? Date.now() + 60000 : null;
-
-        if(secure) document.getElementById("otpDisplay").innerText = "OTP: " + otp;
-        db.push({ dev, payload: encrypted, secure, otp, exp, time: new Date().toLocaleTimeString() });
+        db.push({ dev, payload: encrypted, time: new Date().toLocaleTimeString() });
         document.getElementById("textInput").value = "";
     }
 
     function renderCard(id, data) {
         const card = document.createElement("div");
         card.className = "msg-card animate__animated animate__fadeInUp";
-        card.id = `msg-${id}`;
-        let html = `<div style="display:flex; justify-content:space-between; margin-bottom:8px;"><small style="color:var(--p)">👤 ${data.dev}</small><span onclick="firebase.database().ref('v7_master_sync').child('${id}').remove()" style="cursor:pointer; opacity:0.5;">🗑️</span></div>`;
-
-        if(data.secure) {
-            html += `<span style="font-size:10px; color:var(--s);">🔒 OTP PROTECTED</span>
-                     <div id="lock-${id}" style="margin-top:10px;"><input id="in-${id}" placeholder="OTP" style="width:70px; padding:5px;"><button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" style="padding:5px; margin-left:5px;">Unlock</button></div>
-                     <div id="show-${id}" style="display:none; margin-top:10px; font-weight:bold; color:var(--p); word-break:break-all;"></div>`;
-        } else {
-            const dec = CryptoJS.AES.decrypt(data.payload, MASTER_KEY).toString(CryptoJS.enc.Utf8);
-            html += `<div style="font-size:14px; word-break:break-all;">${dec}</div>`;
-        }
-        card.innerHTML = html;
+        const dec = CryptoJS.AES.decrypt(data.payload, MASTER_KEY).toString(CryptoJS.enc.Utf8);
+        card.innerHTML = `<small style="color:var(--p)">👤 ${data.dev} • ${data.time}</small><br><div style="margin-top:8px;">${dec}</div>`;
         document.getElementById("msgs").prepend(card);
-    }
-
-    function unlock(id, correct, payload, exp) {
-        const val = document.getElementById(`in-${id}`).value;
-        if(val === correct && Date.now() < exp) {
-            const dec = CryptoJS.AES.decrypt(payload, MASTER_KEY).toString(CryptoJS.enc.Utf8);
-            document.getElementById(`lock-${id}`).style.display="none";
-            document.getElementById(`show-${id}`).innerText = dec;
-            document.getElementById(`show-${id}`).style.display="block";
-        } else { alert("Wrong OTP or Expired!"); }
     }
 </script>
 </body>
