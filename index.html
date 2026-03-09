@@ -12,74 +12,193 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     
     <style>
-        :root { --p: #38bdf8; --s: #f472b6; --bg: #0f172a; --g: rgba(255,255,255,0.03); --b: rgba(255,255,255,0.08); --t: #f8fafc; }
-        body { background: radial-gradient(circle at top left, #1e293b, #0f172a); color: var(--t); font-family: 'Inter', sans-serif; margin: 0; padding: 15px; min-height: 100vh; display: flex; justify-content: center; align-items: center; overflow-x: hidden; }
-        
-        .glass { background: var(--g); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--b); border-radius: 32px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); }
-        #auth-container { width: 100%; max-width: 420px; text-align: center; }
-        
-        #app-container { display: none; width: 100%; max-width: 1000px; grid-template-columns: 1fr; gap: 25px; }
-        @media (min-width: 768px) { #app-container { display: grid; grid-template-columns: 420px 1fr; align-items: start; } .sticky { position: sticky; top: 20px; } }
+        :root { 
+            --p: #38bdf8; 
+            --s: #f472b6; 
+            --bg: #0f172a; 
+            --g: rgba(255, 255, 255, 0.03); 
+            --b: rgba(255, 255, 255, 0.08); 
+            --t: #f8fafc;
+            --danger: #fb7185;
+            --success: #4ade80;
+        }
 
-        input, textarea { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--b); color: var(--t); border-radius: 16px; padding: 16px; margin-bottom: 15px; box-sizing: border-box; font-size: 14px; transition: 0.4s; }
-        input:focus, textarea:focus { border-color: var(--p); box-shadow: 0 0 20px rgba(56, 189, 248, 0.15); outline: none; }
-        
-        .btn-p { background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; border: none; padding: 18px; border-radius: 16px; font-weight: 900; width: 100%; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1.5px; }
-        .btn-p:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(56, 189, 248, 0.3); }
+        * { box-sizing: border-box; }
 
-        .msg-card { background: rgba(255,255,255,0.02); border: 1px solid var(--b); padding: 22px; margin-bottom: 20px; border-radius: 24px; position: relative; transition: 0.4s; }
-        .bar-wrap { height: 5px; background: rgba(0,0,0,0.5); width: 100%; border-radius: 10px; margin-top: 15px; overflow: hidden; }
-        .bar { height: 100%; background: linear-gradient(90deg, #f472b6, #fb7185); width: 100%; transition: width 1s linear; }
+        body { 
+            background: radial-gradient(circle at top left, #1e293b, #0f172a); 
+            color: var(--t); 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            margin: 0; 
+            padding: 10px; 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            overflow-x: hidden; 
+        }
+
+        /* --- Visual Hierarchy & Glassmorphism --- */
+        .glass { 
+            background: var(--g); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            border: 1px solid var(--b); 
+            border-radius: 24px; 
+            padding: 24px; 
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); 
+        }
+
+        #auth-container { width: 100%; max-width: 400px; }
+
+        #app-container { 
+            display: none; 
+            width: 100%; 
+            max-width: 1100px; 
+            grid-template-columns: 1fr; 
+            gap: 20px; 
+        }
+
+        /* --- Enhanced Mobile Responsiveness --- */
+        @media (min-width: 850px) { 
+            #app-container { grid-template-columns: 380px 1fr; align-items: start; } 
+            .sticky { position: sticky; top: 20px; }
+            body { padding: 40px; }
+        }
+
+        /* --- UI Elements --- */
+        input, textarea { 
+            width: 100%; 
+            background: rgba(0,0,0,0.3); 
+            border: 1px solid var(--b); 
+            color: var(--t); 
+            border-radius: 12px; 
+            padding: 14px; 
+            margin-bottom: 12px; 
+            font-size: 14px; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+
+        input:focus, textarea:focus { 
+            border-color: var(--p); 
+            background: rgba(0,0,0,0.5);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); 
+            outline: none; 
+        }
+
+        .btn-p { 
+            background: linear-gradient(135deg, var(--p), #818cf8); 
+            color: #0f172a; 
+            border: none; 
+            padding: 16px; 
+            border-radius: 14px; 
+            font-weight: 800; 
+            width: 100%; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-p:active { transform: scale(0.98); }
+        .btn-p:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* --- Message Cards Hierarchy --- */
+        .msg-card { 
+            background: rgba(255,255,255,0.025); 
+            border: 1px solid var(--b); 
+            padding: 20px; 
+            margin-bottom: 16px; 
+            border-radius: 20px; 
+            transition: transform 0.3s;
+        }
         
-        .status-dot { height: 10px; width: 10px; background: #4ade80; border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 10px #4ade80; }
-        .audit-badge { font-size: 9px; background: rgba(56, 189, 248, 0.1); color: var(--p); padding: 4px 8px; border-radius: 6px; font-weight: bold; margin-bottom: 10px; display: inline-block; }
+        .msg-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .msg-meta { font-size: 11px; color: #94a3b8; font-family: monospace; }
+        .msg-body { font-size: 15px; line-height: 1.6; word-break: break-all; color: #e2e8f0; }
+
+        /* --- Loading States --- */
+        .loader { width: 20px; height: 20px; border: 2px solid #fff; border-bottom-color: transparent; border-radius: 50%; display: none; animation: rotation 1s linear infinite; margin: 0 auto; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- OTP/Unlock Flow Improvement --- */
+        .otp-input-group { 
+            display: flex; 
+            gap: 10px; 
+            margin-top: 15px; 
+            background: rgba(0,0,0,0.2); 
+            padding: 12px; 
+            border-radius: 16px;
+        }
+        
+        .bar-wrap { height: 4px; background: rgba(255,255,255,0.05); width: 100%; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+        .bar { height: 100%; background: var(--s); width: 100%; transition: width 1s linear; }
+
+        .status-dot { height: 8px; width: 8px; background: var(--success); border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 8px var(--success); }
+        .badge { font-size: 10px; background: var(--b); color: var(--p); padding: 4px 10px; border-radius: 20px; text-transform: uppercase; font-weight: bold; }
     </style>
 </head>
 <body class="animate__animated animate__fadeIn">
 
     <div id="auth-container" class="glass animate__animated animate__zoomIn">
-        <h1 id="auth-title" style="color: var(--p); margin-bottom: 5px; font-size: 32px;">GhostType</h1>
-        <p style="font-size: 14px; color: #64748b; margin-bottom: 30px;">Military-Grade Sync Protocol</p>
+        <h1 id="auth-title" style="color: var(--p); margin: 0 0 5px 0; font-size: 28px; letter-spacing: -1px;">GhostType</h1>
+        <p style="font-size: 13px; color: #64748b; margin-bottom: 25px;">Node Authentication Required</p>
         
         <input type="email" id="email" placeholder="Email ID">
         <input type="password" id="pass" placeholder="Password">
         
-        <button id="auth-btn" class="btn-p" onclick="handleAuth()">Initialize Sync</button>
-        <p id="toggle-link" style="font-size: 11px; color: #94a3b8; margin-top: 25px; cursor: pointer;" onclick="toggleMode()">New Node? Register Here</p>
-        <p id="auth-error" style="color: #fb7185; font-size: 11px; margin-top: 15px;"></p>
+        <button id="auth-btn" class="btn-p" onclick="handleAuth()">
+            <span id="btn-text">Initialize Sync</span>
+            <div id="auth-loader" class="loader"></div>
+        </button>
+        
+        <p id="toggle-link" style="font-size: 12px; color: #94a3b8; margin-top: 20px; cursor: pointer; text-decoration: underline;" onclick="toggleMode()">Request New Node Access</p>
+        <p id="auth-error" style="color: var(--danger); font-size: 11px; margin-top: 15px;"></p>
     </div>
 
     <div id="app-container">
         <div class="sticky">
             <div class="glass animate__animated animate__fadeInLeft">
-                <div style="display:flex; justify-content:space-between; margin-bottom:25px;">
-                    <h2 style="margin:0; font-size:18px; color:var(--p);">SYNC PANEL</h2>
-                    <button onclick="logout()" style="background:none; border: 1px solid #fb7185; color: #fb7185; font-size: 10px; padding: 5px 10px; border-radius: 10px; cursor: pointer;">LOGOUT</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h2 style="margin:0; font-size:14px; letter-spacing:2px; color:var(--p);">UPLINK CONTROL</h2>
+                    <button onclick="logout()" style="background:none; border: 1px solid var(--danger); color: var(--danger); font-size: 10px; padding: 4px 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">DISCONNECT</button>
                 </div>
                 
-                <input id="deviceName" placeholder="👤 Identity (Laptop/Phone)" oninput="localStorage.setItem('gName', this.value)">
-                <textarea id="textInput" placeholder="Paste text for cloud relay..."></textarea>
+                <input id="deviceName" placeholder="👤 Node Identity (e.g. Work-PC)" oninput="localStorage.setItem('gName', this.value)">
+                <textarea id="textInput" rows="4" placeholder="Input sensitive payload for relay..."></textarea>
                 
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--p); margin-bottom:18px;">
-                    <span id="stats">Local Encrypt Ready</span>
-                    <label style="cursor:pointer;"><input type="checkbox" id="isSec"> 🔒 OTP Layer</label>
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:20px; padding: 0 5px;">
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="isSec" style="width:auto; margin:0;"> 🔒 High-Sec Mode
+                    </label>
+                    <span id="stats" style="color:#64748b;">Ready</span>
                 </div>
                 
-                <button class="btn-p" onclick="sendData()">Encrypt & Push</button>
-                <div id="otpDisplay" style="text-align:center; color:#fb7185; font-weight:bold; margin-top:20px; font-family: monospace; font-size: 22px;"></div>
-                <div id="net-status" style="margin-top:30px; text-align:center; font-size:11px; color:#64748b;"><span class="status-dot"></span> SECURE CHANNEL LIVE</div>
+                <button class="btn-p" onclick="sendData()">Push to Cloud</button>
+                
+                <div id="otpDisplayContainer" style="display:none; margin-top:20px; padding:15px; background:rgba(244,114,182,0.1); border-radius:12px; text-align:center; border: 1px dashed var(--s);">
+                    <div style="font-size:10px; color:var(--s); margin-bottom:5px;">TEMPORARY ACCESS KEY</div>
+                    <div id="otpDisplay" style="font-family: monospace; font-size: 24px; font-weight: bold; color:var(--s);"></div>
+                </div>
+
+                <div id="net-status" style="margin-top:25px; text-align:center; font-size:10px; color:#64748b; letter-spacing: 1px;">
+                    <span class="status-dot"></span> ENCRYPTED CHANNEL ACTIVE
+                </div>
             </div>
         </div>
 
         <div class="glass animate__animated animate__fadeInRight">
-            <h2 style="margin:0 0 30px 0; font-size:22px;">Encrypted Relay</h2>
+            <h2 style="margin:0 0 25px 0; font-size:18px; display:flex; align-items:center; gap:10px;">
+                <span style="color:var(--p)">●</span> Relay Stream
+            </h2>
             <div id="msgs"></div>
         </div>
     </div>
 
-
-
 <script>
+    // Config & Init (Same logic, improved UX feedback)
     const firebaseConfig = {
         apiKey: "AIzaSyDRsNoO7wS4tY9G_VFwRTsTDWwHaYbJGl4",
         authDomain: "ghosttype-67c57.firebaseapp.com",
@@ -94,24 +213,35 @@
     const auth = firebase.auth();
     const db = firebase.database().ref("v7_master_sync");
     const MASTER_KEY = "GHOST_ULTRA_2026_KEY";
-    const sound = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
 
     let isLoginMode = true;
 
     function toggleMode() {
         isLoginMode = !isLoginMode;
         document.getElementById("auth-title").innerText = isLoginMode ? "GhostType" : "New Node";
-        document.getElementById("auth-btn").innerText = isLoginMode ? "Initialize Sync" : "Register Node";
+        document.getElementById("auth-btn").querySelector('#btn-text').innerText = isLoginMode ? "Initialize Sync" : "Register Node";
     }
 
     function handleAuth() {
         const email = document.getElementById('email').value;
         const pass = document.getElementById('pass').value;
-        if (isLoginMode) {
-            auth.signInWithEmailAndPassword(email, pass).catch(e => document.getElementById('auth-error').innerText = e.message);
-        } else {
-            auth.createUserWithEmailAndPassword(email, pass).catch(e => document.getElementById('auth-error').innerText = e.message);
-        }
+        const btnText = document.getElementById('btn-text');
+        const loader = document.getElementById('auth-loader');
+        
+        if(!email || !pass) return;
+
+        btnText.style.display = 'none';
+        loader.style.display = 'block';
+
+        const authAction = isLoginMode ? 
+            auth.signInWithEmailAndPassword(email, pass) : 
+            auth.createUserWithEmailAndPassword(email, pass);
+
+        authAction.catch(e => {
+            document.getElementById('auth-error').innerText = e.message;
+            btnText.style.display = 'block';
+            loader.style.display = 'none';
+        });
     }
 
     function logout() { auth.signOut().then(() => location.reload()); }
@@ -121,9 +251,6 @@
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('app-container').style.display = 'grid';
             initApp();
-        } else {
-            document.getElementById('auth-container').style.display = 'block';
-            document.getElementById('app-container').style.display = 'none';
         }
     });
 
@@ -132,16 +259,7 @@
         db.on("child_added", snap => renderCard(snap.key, snap.val()));
         db.on("child_removed", snap => {
             const el = document.getElementById(`msg-${snap.key}`);
-            if(el) { el.classList.add('animate__animated', 'animate__zoomOut'); setTimeout(() => el.remove(), 500); }
-        });
-        
-        window.addEventListener('offline', () => {
-            document.querySelector('.status-dot').style.background = '#fb7185';
-            document.getElementById('net-status').innerText = "NODE OFFLINE";
-        });
-        window.addEventListener('online', () => {
-            document.querySelector('.status-dot').style.background = '#4ade80';
-            document.getElementById('net-status').innerText = "SECURE CHANNEL LIVE";
+            if(el) { el.classList.add('animate__animated', 'animate__fadeOutRight'); setTimeout(() => el.remove(), 500); }
         });
     }
 
@@ -149,7 +267,6 @@
         const text = document.getElementById("textInput").value.trim();
         const dev = document.getElementById("deviceName").value || "Phantom_Node";
         const secure = document.getElementById("isSec").checked;
-        const platform = /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
         
         if(!text) return;
 
@@ -157,39 +274,55 @@
         let otp = secure ? Math.floor(100000 + Math.random()*900000).toString() : null;
         let exp = secure ? Date.now() + 60000 : null;
 
-        if(secure) document.getElementById("otpDisplay").innerText = otp;
-        db.push({ dev, payload: encrypted, secure, otp, exp, time: new Date().toLocaleTimeString(), platform });
+        if(secure) {
+            document.getElementById("otpDisplayContainer").style.display = "block";
+            document.getElementById("otpDisplay").innerText = otp;
+        } else {
+            document.getElementById("otpDisplayContainer").style.display = "none";
+        }
+
+        db.push({ dev, payload: encrypted, secure, otp, exp, time: new Date().toLocaleTimeString() });
         document.getElementById("textInput").value = "";
     }
 
     function renderCard(id, data) {
-        sound.play().catch(()=>{});
         const container = document.getElementById("msgs");
         const card = document.createElement("div");
         card.className = "msg-card animate__animated animate__fadeInUp";
         card.id = `msg-${id}`;
 
-        let html = `<div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <span class="audit-badge">AES-256</span>
-                            <span class="audit-badge" style="background:rgba(255,255,255,0.05); color:#94a3b8;">${data.platform || 'System'}</span>
-                        </div>
-                        <span style="cursor:pointer; opacity:0.3;" onclick="db.child('${id}').remove()">🗑️</span>
-                    </div>
-                    <div style="margin-bottom:10px;"><small style="color:var(--p); font-weight:900;">👤 ${data.dev} • ${data.time}</small></div>`;
+        let html = `
+            <div class="msg-header">
+                <div class="msg-meta">
+                    <span class="badge">AES-256</span> 
+                    <span>${data.time}</span>
+                </div>
+                <div onclick="db.child('${id}').remove()" style="cursor:pointer; font-size:14px; color:#64748b;">✕</div>
+            </div>
+            <div style="color:var(--p); font-size:12px; font-weight:bold; margin-bottom:8px;">👤 ${data.dev}</div>
+        `;
 
         if(data.secure) {
-            html += `<span style="font-size:10px; color:#fb7185; font-weight:800; letter-spacing:1px;">🔒 TEMPORAL PACKET</span><div class="bar-wrap"><div class="bar" id="bar-${id}"></div></div>
-                     <div id="lock-${id}" style="margin-top:15px; display:flex; gap:12px;">
-                        <input id="in-${id}" placeholder="Enter OTP" style="margin:0; width:100px; padding:10px; background:rgba(0,0,0,0.6); border-radius:12px;">
-                        <button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" style="padding:10px 20px; background:#fb7185; color:white; border:none; border-radius:12px; cursor:pointer; font-size:11px; font-weight:bold;">DECRYPT</button>
-                     </div><div id="show-${id}" style="display:none; margin-top:15px; font-weight:bold; color:var(--p); word-break:break-all; font-size:14px; background:rgba(0,0,0,0.3); padding:15px; border-radius:16px;"></div>`;
+            html += `
+                <div class="bar-wrap"><div class="bar" id="bar-${id}"></div></div>
+                <div id="lock-${id}">
+                    <p style="font-size:11px; color:var(--s); margin:10px 0;">Locked Temporal Packet</p>
+                    <div class="otp-input-group">
+                        <input id="in-${id}" placeholder="OTP" style="margin:0; flex:1; padding:10px;">
+                        <button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" class="btn-p" style="width:auto; padding:0 20px; font-size:11px;">Unlock</button>
+                    </div>
+                </div>
+                <div id="show-${id}" class="msg-body" style="display:none; margin-top:15px; background:rgba(0,0,0,0.2); padding:15px; border-radius:12px; border-left:3px solid var(--p);"></div>
+            `;
             handleTimer(id, data.exp);
         } else {
             const dec = CryptoJS.AES.decrypt(data.payload, MASTER_KEY).toString(CryptoJS.enc.Utf8);
-            html += `<div style="font-size:15px; word-break:break-all; margin-top:10px; line-height:1.6;">${dec}</div>
-                     <button onclick="copyTo('${dec}')" style="background:var(--p); border:none; border-radius:10px; font-size:10px; padding:6px 15px; margin-top:15px; cursor:pointer; color:#0f172a; font-weight:900;">COPY CLIPBOARD</button>`;
+            html += `
+                <div class="msg-body">${dec}</div>
+                <button onclick="copyTo('${id}', \`${dec}\`)" id="copy-${id}" style="background:var(--b); border:none; border-radius:8px; font-size:10px; padding:8px 15px; margin-top:15px; cursor:pointer; color:var(--p); font-weight:bold; transition:0.3s;">COPY TO CLIPBOARD</button>
+            `;
         }
+        
         card.innerHTML = html;
         container.prepend(card);
     }
@@ -212,15 +345,19 @@
             display.innerText = dec;
             display.style.display="block";
             navigator.clipboard.writeText(dec);
-            alert("Decrypted & Unified with Clipboard!");
-        } else { 
-            const el = document.getElementById(`msg-${id}`);
-            el.classList.add('animate__animated', 'animate__headShake');
-            setTimeout(() => el.classList.remove('animate__animated', 'animate__headShake'), 500);
+        } else {
+            document.getElementById(`msg-${id}`).classList.add('animate__shakeX');
+            setTimeout(() => document.getElementById(`msg-${id}`).classList.remove('animate__shakeX'), 500);
         }
     };
 
-    window.copyTo = (txt) => { navigator.clipboard.writeText(txt); alert("Unified with Clipboard!"); };
+    window.copyTo = (id, txt) => { 
+        navigator.clipboard.writeText(txt);
+        const btn = document.getElementById(`copy-${id}`);
+        btn.innerText = "COPIED!";
+        btn.style.color = "var(--success)";
+        setTimeout(() => { btn.innerText = "COPY TO CLIPBOARD"; btn.style.color = "var(--p)"; }, 2000);
+    };
 </script>
 </body>
 </html>
