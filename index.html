@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostType Ultra | 2026 Platinum Build</title>
+    <title>GhostType Ultra | 2026 Infinity Build</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -15,26 +15,37 @@
         :root { --p: #38bdf8; --s: #f472b6; --bg: #0f172a; --g: rgba(255,255,255,0.03); --b: rgba(255,255,255,0.08); --t: #f8fafc; }
         
         body { 
-            background: radial-gradient(circle at top left, #1e293b, #0f172a); 
+            background: #020617; 
             color: var(--t); 
             font-family: 'Inter', sans-serif; 
             margin: 0; 
             padding: 0; 
             min-height: 100vh; 
-            display: flex; 
-            justify-content: center; 
-            align-items: flex-start; /* Changed for scrolling */
             overflow-x: hidden; 
         }
 
-        /* Scrollbar Styling */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--b); border-radius: 10px; }
+        /* --- BACKGROUND ANIMATION CANVAS --- */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+        }
+
+        .glass { 
+            background: var(--g); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            border: 1px solid var(--b); 
+            border-radius: 32px; 
+            padding: 30px; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); 
+        }
         
-        .glass { background: var(--g); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--b); border-radius: 32px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); }
-        
-        #auth-container { width: 100%; max-width: 420px; text-align: center; margin-top: 10vh; }
+        #auth-container { width: 100%; max-width: 420px; text-align: center; margin: 10vh auto; }
         
         #app-container { 
             display: none; 
@@ -43,6 +54,7 @@
             grid-template-columns: 1fr; 
             gap: 30px; 
             padding: 40px 20px;
+            margin: 0 auto;
         }
 
         @media (min-width: 992px) { 
@@ -50,73 +62,115 @@
             .sticky-panel { position: sticky; top: 40px; } 
         }
 
-        input, textarea { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--b); color: var(--t); border-radius: 16px; padding: 16px; margin-bottom: 15px; box-sizing: border-box; font-size: 14px; transition: 0.4s; font-family: inherit; }
-        input:focus, textarea:focus { border-color: var(--p); box-shadow: 0 0 20px rgba(56, 189, 248, 0.15); outline: none; background: rgba(0,0,0,0.6); }
+        input, textarea { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--b); color: var(--t); border-radius: 16px; padding: 16px; margin-bottom: 15px; box-sizing: border-box; font-size: 14px; transition: 0.4s; }
+        input:focus, textarea:focus { border-color: var(--p); box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); outline: none; }
         
-        textarea { height: 180px; resize: none; }
-
         .btn-p { background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; border: none; padding: 18px; border-radius: 16px; font-weight: 900; width: 100%; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1.5px; }
         .btn-p:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(56, 189, 248, 0.3); }
 
-        .history-section h2 { font-size: 22px; margin: 0 0 25px 0; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: space-between; }
-        .history-section h2::after { content: ""; flex: 1; height: 1px; background: var(--b); margin-left: 20px; }
-
-        .msg-card { background: rgba(255,255,255,0.02); border: 1px solid var(--b); padding: 22px; margin-bottom: 20px; border-radius: 24px; position: relative; transition: 0.4s; }
-        .msg-card:hover { border-color: var(--p); background: rgba(255,255,255,0.05); }
-
+        .msg-card { background: rgba(255,255,255,0.02); border: 1px solid var(--b); padding: 22px; margin-bottom: 20px; border-radius: 24px; position: relative; }
         .bar-wrap { height: 5px; background: rgba(0,0,0,0.5); width: 100%; border-radius: 10px; margin-top: 15px; overflow: hidden; }
         .bar { height: 100%; background: linear-gradient(90deg, #f472b6, #fb7185); width: 100%; transition: width 1s linear; }
-        
-        .status-dot { height: 10px; width: 10px; background: #4ade80; border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 10px #4ade80; }
-        .audit-badge { font-size: 9px; background: rgba(56, 189, 248, 0.1); color: var(--p); padding: 4px 8px; border-radius: 6px; font-weight: bold; margin-bottom: 10px; display: inline-block; text-transform: uppercase; }
-        
-        .trash-btn { cursor: pointer; opacity: 0.3; transition: 0.3s; padding: 5px; }
-        .trash-btn:hover { opacity: 1; color: #fb7185; transform: scale(1.2); }
+        .audit-badge { font-size: 9px; background: rgba(56, 189, 248, 0.1); color: var(--p); padding: 4px 8px; border-radius: 6px; font-weight: bold; margin-bottom: 10px; display: inline-block; }
     </style>
 </head>
 <body>
 
+    <canvas id="bg-canvas"></canvas>
+
     <div id="auth-container" class="glass animate__animated animate__zoomIn">
-        <h1 id="auth-title" style="color: var(--p); margin: 0 0 5px 0; font-size: 32px; letter-spacing: -1.5px;">GhostType</h1>
-        <p style="font-size: 14px; color: #64748b; margin-bottom: 30px;">Military-Grade Sync Protocol</p>
-        
-        <input type="email" id="email" placeholder="Authorized Email ID">
+        <h1 style="color: var(--p); font-size: 32px; letter-spacing: -1.5px; margin: 0;">GhostType</h1>
+        <p style="font-size: 14px; color: #64748b; margin-bottom: 30px;">Distributed Encryption Node</p>
+        <input type="email" id="email" placeholder="Authorized Email">
         <input type="password" id="pass" placeholder="Password">
-        
-        <button id="auth-btn" class="btn-p" onclick="handleAuth()">Initialize Sync</button>
+        <button id="auth-btn" class="btn-p" onclick="handleAuth()">Enter Terminal</button>
         <p id="toggle-link" style="font-size: 11px; color: #94a3b8; margin-top: 25px; cursor: pointer;" onclick="toggleMode()">New Node? Register Here</p>
-        <p id="auth-error" style="color: #fb7185; font-size: 11px; margin-top: 15px;"></p>
     </div>
 
     <div id="app-container">
         <div class="sticky-panel">
             <div class="glass animate__animated animate__fadeInLeft">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-                    <h2 style="margin:0; font-size:18px; color:var(--p); letter-spacing: 1px;">SYNC CONTROL</h2>
-                    <button onclick="logout()" style="background:none; border: 1px solid #fb7185; color: #fb7185; font-size: 10px; padding: 6px 14px; border-radius: 12px; cursor: pointer; font-weight: bold;">LOGOUT</button>
+                    <h2 style="margin:0; font-size:18px; color:var(--p);">SYNC CONTROL</h2>
+                    <button onclick="logout()" style="background:none; border: 1px solid #fb7185; color: #fb7185; font-size: 10px; padding: 6px 14px; border-radius: 12px; cursor: pointer;">LOGOUT</button>
                 </div>
-                
                 <input id="deviceName" placeholder="👤 Identity (Laptop/Phone)" oninput="localStorage.setItem('gName', this.value)">
                 <textarea id="textInput" placeholder="Paste text for cloud relay..."></textarea>
-                
                 <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--p); margin-bottom:18px; font-weight: bold;">
-                    <span id="stats">Local Encrypt Ready</span>
-                    <label style="cursor:pointer; display:flex; align-items:center;"><input type="checkbox" id="isSec" style="margin-right:8px; scale: 1.2;"> 🔒 OTP Layer</label>
+                    <span>Local AES-256 Ready</span>
+                    <label style="cursor:pointer;"><input type="checkbox" id="isSec"> 🔒 OTP Layer</label>
                 </div>
-                
                 <button class="btn-p" onclick="sendData()">Encrypt & Push</button>
-                <div id="otpDisplay" style="text-align:center; color:#fb7185; font-weight:bold; margin-top:20px; font-family: monospace; font-size: 24px; letter-spacing: 4px;"></div>
-                <div id="net-status" style="margin-top:30px; text-align:center; font-size:11px; color:#64748b; font-weight: 500;"><span class="status-dot"></span> SECURE CHANNEL LIVE</div>
+                <div id="otpDisplay" style="text-align:center; color:#fb7185; font-weight:bold; margin-top:20px; font-family: monospace; font-size: 24px;"></div>
             </div>
         </div>
-
         <div class="history-section animate__animated animate__fadeIn">
-            <h2 style="color: var(--t);">Relay Stream</h2>
+            <h2 style="margin:0 0 25px 0; color:var(--p);">Relay Stream</h2>
             <div id="msgs"></div>
         </div>
     </div>
 
 <script>
+    // --- CANVAS ANIMATION SCRIPT ---
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.onresize = resize;
+    resize();
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.vx = (Math.random() - 0.5) * 0.5;
+            this.vy = (Math.random() - 0.5) * 0.5;
+            this.size = Math.random() * 2;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        }
+        draw() {
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.5)';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p, i) => {
+            p.update();
+            p.draw();
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = p.x - particles[j].x;
+                const dy = p.y - particles[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 100) {
+                    ctx.strokeStyle = `rgba(56, 189, 248, ${1 - dist / 100})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+        });
+        requestAnimationFrame(animate);
+    }
+    animate();
+
+    // --- FIREBASE & APP LOGIC ---
     const firebaseConfig = {
         apiKey: "AIzaSyDRsNoO7wS4tY9G_VFwRTsTDWwHaYbJGl4",
         authDomain: "ghosttype-67c57.firebaseapp.com",
@@ -131,25 +185,19 @@
     const auth = firebase.auth();
     const db = firebase.database().ref("v7_master_sync");
     const MASTER_KEY = "GHOST_ULTRA_2026_KEY";
-    const sound = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
 
     let isLoginMode = true;
 
-    function toggleMode() {
-        isLoginMode = !isLoginMode;
-        document.getElementById("auth-title").innerText = isLoginMode ? "GhostType" : "Initial Boot";
-        document.getElementById("auth-btn").innerText = isLoginMode ? "Initialize Sync" : "Register Node";
-        document.getElementById("toggle-link").innerText = isLoginMode ? "New Node? Register Here" : "Existing Node? Login Here";
+    function handleAuth() {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('pass').value;
+        if (isLoginMode) auth.signInWithEmailAndPassword(e, p).catch(alert);
+        else auth.createUserWithEmailAndPassword(e, p).catch(alert);
     }
 
-    function handleAuth() {
-        const email = document.getElementById('email').value;
-        const pass = document.getElementById('pass').value;
-        if (isLoginMode) {
-            auth.signInWithEmailAndPassword(email, pass).catch(e => document.getElementById('auth-error').innerText = e.message);
-        } else {
-            auth.createUserWithEmailAndPassword(email, pass).catch(e => document.getElementById('auth-error').innerText = e.message);
-        }
+    function toggleMode() {
+        isLoginMode = !isLoginMode;
+        document.getElementById('auth-btn').innerText = isLoginMode ? "Enter Terminal" : "Register Node";
     }
 
     function logout() { auth.signOut().then(() => location.reload()); }
@@ -159,38 +207,22 @@
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('app-container').style.display = 'grid';
             initApp();
-        } else {
-            document.getElementById('auth-container').style.display = 'block';
-            document.getElementById('app-container').style.display = 'none';
         }
     });
 
     function initApp() {
         document.getElementById("deviceName").value = localStorage.getItem('gName') || "";
-        document.getElementById("textInput").focus();
-        
         db.on("child_added", snap => renderCard(snap.key, snap.val()));
         db.on("child_removed", snap => {
             const el = document.getElementById(`msg-${snap.key}`);
-            if(el) { el.classList.add('animate__animated', 'animate__fadeOut'); setTimeout(() => el.remove(), 500); }
-        });
-        
-        window.addEventListener('offline', () => {
-            document.querySelector('.status-dot').style.background = '#fb7185';
-            document.getElementById('net-status').innerText = "NODE DISCONNECTED";
-        });
-        window.addEventListener('online', () => {
-            document.querySelector('.status-dot').style.background = '#4ade80';
-            document.getElementById('net-status').innerText = "SECURE CHANNEL LIVE";
+            if(el) el.remove();
         });
     }
 
     function sendData() {
         const text = document.getElementById("textInput").value.trim();
-        const dev = document.getElementById("deviceName").value || "Anonymous_Node";
+        const dev = document.getElementById("deviceName").value || "Phantom_Node";
         const secure = document.getElementById("isSec").checked;
-        const platform = /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
-        
         if(!text) return;
 
         const encrypted = CryptoJS.AES.encrypt(text, MASTER_KEY).toString();
@@ -198,37 +230,33 @@
         let exp = secure ? Date.now() + 60000 : null;
 
         if(secure) document.getElementById("otpDisplay").innerText = otp;
-        db.push({ dev, payload: encrypted, secure, otp, exp, time: new Date().toLocaleTimeString(), platform });
+        db.push({ dev, payload: encrypted, secure, otp, exp, time: new Date().toLocaleTimeString() });
         document.getElementById("textInput").value = "";
     }
 
     function renderCard(id, data) {
-        sound.play().catch(()=>{});
         const container = document.getElementById("msgs");
         const card = document.createElement("div");
         card.className = "msg-card animate__animated animate__fadeInUp";
         card.id = `msg-${id}`;
 
         let html = `<div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <span class="audit-badge">AES-256 E2EE</span>
-                            <span class="audit-badge" style="background:rgba(255,255,255,0.05); color:#94a3b8;">${data.platform || 'System'}</span>
-                        </div>
-                        <span class="trash-btn" onclick="db.child('${id}').remove()">🗑️</span>
+                        <span class="audit-badge">AES-256 E2EE</span>
+                        <span style="cursor:pointer; opacity:0.3;" onclick="db.child('${id}').remove()">🗑️</span>
                     </div>
-                    <div style="margin-bottom:12px;"><small style="color:var(--p); font-weight:900;">👤 ${data.dev} • ${data.time}</small></div>`;
+                    <div style="margin-bottom:10px;"><small style="color:var(--p); font-weight:900;">👤 ${data.dev} • ${data.time}</small></div>`;
 
         if(data.secure) {
-            html += `<span style="font-size:10px; color:#fb7185; font-weight:800; letter-spacing:1.5px;">🔒 TEMPORAL PACKET</span><div class="bar-wrap"><div class="bar" id="bar-${id}"></div></div>
-                     <div id="lock-${id}" style="margin-top:18px; display:flex; gap:12px;">
-                        <input id="in-${id}" placeholder="Enter OTP" style="margin:0; width:100px; padding:12px; background:rgba(0,0,0,0.6); border-radius:12px;">
+            html += `<div class="bar-wrap"><div class="bar" id="bar-${id}"></div></div>
+                     <div id="lock-${id}" style="margin-top:15px; display:flex; gap:12px;">
+                        <input id="in-${id}" placeholder="OTP" style="margin:0; width:100px; padding:10px; background:rgba(0,0,0,0.6); border-radius:12px;">
                         <button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" style="padding:10px 20px; background:#fb7185; color:white; border:none; border-radius:12px; cursor:pointer; font-size:11px; font-weight:bold;">DECRYPT</button>
-                     </div><div id="show-${id}" style="display:none; margin-top:15px; font-weight:bold; color:var(--p); word-break:break-all; font-size:14px; background:rgba(0,0,0,0.3); padding:18px; border-radius:16px; line-height: 1.6;"></div>`;
+                     </div><div id="show-${id}" style="display:none; margin-top:15px; font-weight:bold; color:var(--p); word-break:break-all; font-size:14px; background:rgba(0,0,0,0.3); padding:15px; border-radius:16px;"></div>`;
             handleTimer(id, data.exp);
         } else {
             const dec = CryptoJS.AES.decrypt(data.payload, MASTER_KEY).toString(CryptoJS.enc.Utf8);
-            html += `<div style="font-size:15px; word-break:break-all; margin-top:10px; line-height:1.7;">${dec}</div>
-                     <button onclick="copyTo('${dec}')" style="background:var(--p); border:none; border-radius:10px; font-size:10px; padding:8px 18px; margin-top:18px; cursor:pointer; color:#0f172a; font-weight:900;">COPY CLIPBOARD</button>`;
+            html += `<div style="font-size:15px; word-break:break-all; margin-top:10px; line-height:1.6;">${dec}</div>
+                     <button onclick="navigator.clipboard.writeText('${dec}'); alert('Unified!')" style="background:var(--p); border:none; border-radius:10px; font-size:10px; padding:6px 15px; margin-top:15px; cursor:pointer; color:#0f172a; font-weight:900;">COPY CLIPBOARD</button>`;
         }
         card.innerHTML = html;
         container.prepend(card);
@@ -252,15 +280,8 @@
             display.innerText = dec;
             display.style.display="block";
             navigator.clipboard.writeText(dec);
-            alert("Decrypted & Unified with Clipboard!");
-        } else { 
-            const el = document.getElementById(`msg-${id}`);
-            el.classList.add('animate__animated', 'animate__headShake');
-            setTimeout(() => el.classList.remove('animate__animated', 'animate__headShake'), 500);
         }
     };
-
-    window.copyTo = (txt) => { navigator.clipboard.writeText(txt); alert("Unified with Clipboard!"); };
 </script>
 </body>
 </html>
