@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostType Ultra | Platinum</title>
+    <title>GhostType Ultra | Fixed Platinum</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -24,11 +24,10 @@
                         radial-gradient(at 50% 0%, #0f172a 0, transparent 50%), 
                         radial-gradient(at 100% 0%, #1e1b4b 0, transparent 50%);
             background-color: var(--bg);
-            color: white; font-family: 'SF Pro Display', 'Inter', sans-serif;
+            color: white; font-family: 'Inter', sans-serif;
             margin: 0; display: flex; height: 100vh; overflow: hidden;
         }
 
-        /* Sidebar Glass Layout */
         #sidebar {
             width: 350px;
             background: var(--glass);
@@ -40,7 +39,6 @@
             z-index: 10;
         }
 
-        /* Main Content Layout */
         #main-feed {
             flex: 1;
             padding: 40px;
@@ -54,17 +52,16 @@
             border-radius: 24px;
             padding: 25px;
             margin-bottom: 20px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
         }
 
         .premium-card:hover {
-            background: rgba(255, 255, 255, 0.08);
             border-color: var(--accent);
-            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.08);
         }
 
         input, textarea {
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.4);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 14px;
@@ -72,16 +69,20 @@
             width: 100%;
             margin-bottom: 12px;
             box-sizing: border-box;
+            outline: none;
         }
+
+        input:focus { border-color: var(--accent); }
 
         .btn-glow {
             background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
             border: none; color: white; padding: 15px; border-radius: 14px;
             font-weight: 700; cursor: pointer; width: 100%;
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+            transition: 0.3s;
         }
 
-        /* Auth Screen */
+        .btn-glow:hover { opacity: 0.9; transform: scale(0.98); }
+
         #auth-overlay {
             position: fixed; inset: 0; background: var(--bg);
             display: flex; align-items: center; justify-content: center; z-index: 100;
@@ -90,11 +91,11 @@
         .node-badge {
             font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
             padding: 4px 10px; border-radius: 20px; background: rgba(56, 189, 248, 0.15);
-            color: var(--accent); font-weight: bold;
+            color: var(--accent); font-weight: bold; border: none;
         }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        .copy-btn { cursor: pointer; transition: 0.2s; }
+        .copy-btn:active { color: #4ade80; }
     </style>
 </head>
 <body>
@@ -102,44 +103,44 @@
     <div id="auth-overlay">
         <div class="premium-card animate__animated animate__zoomIn" style="width: 350px; text-align: center;">
             <h1 style="margin:0; font-size: 28px; color: var(--accent);">GHOST<span style="font-weight:100">TYPE</span></h1>
-            <p style="color: #6b7280; font-size: 13px; margin-bottom: 30px;">PLATINUM v8.0</p>
-            <input type="email" id="email" placeholder="Node Address (Email)">
-            <input type="password" id="pass" placeholder="Access Key">
-            <button class="btn-glow" onclick="handleAuth()">UNLEASH</button>
+            <p style="color: #6b7280; font-size: 11px; margin-bottom: 30px;">SECURE PAYLOAD RELAY</p>
+            <input type="email" id="email" placeholder="Node Email">
+            <input type="password" id="pass" placeholder="Password">
+            <button class="btn-glow" onclick="handleAuth()">INITIALIZE NODE</button>
             <p id="auth-error" style="color: #f87171; font-size: 11px; margin-top: 15px;"></p>
         </div>
     </div>
 
     <div id="sidebar">
         <div style="margin-bottom: 40px;">
-            <div class="node-badge">Encrypted Session</div>
-            <h2 style="margin: 10px 0 0 0;">Control Panel</h2>
+            <div class="node-badge">Live Protocol</div>
+            <h2 style="margin: 10px 0 0 0;">Control</h2>
         </div>
 
-        <input id="deviceName" placeholder="👤 Device Name" oninput="localStorage.setItem('gName', this.value)">
-        <textarea id="textInput" style="height: 120px;" placeholder="What needs syncing?"></textarea>
+        <input id="deviceName" placeholder="👤 Node Identity" oninput="localStorage.setItem('gName', this.value)">
+        <textarea id="textInput" style="height: 120px;" placeholder="Message to encrypt..."></textarea>
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom: 20px;">
-            <label style="font-size: 11px; color: #9ca3af;"><input type="checkbox" id="isSec"> 🔒 Secure</label>
-            <label style="font-size: 11px; color: #9ca3af;"><input type="checkbox" id="isBurn"> 🔥 Burn</label>
-            <label style="font-size: 11px; color: #9ca3af;"><input type="checkbox" id="isPinned"> 📌 Pin</label>
+            <label style="font-size: 11px;"><input type="checkbox" id="isSec"> 🔒 Secure</label>
+            <label style="font-size: 11px;"><input type="checkbox" id="isBurn"> 🔥 Burn</label>
+            <label style="font-size: 11px;"><input type="checkbox" id="isPinned"> 📌 Pin</label>
             <input type="file" id="fileInput" style="display:none" onchange="handleFile(this)">
-            <label onclick="document.getElementById('fileInput').click()" style="font-size: 11px; color: var(--accent); cursor:pointer;">📁 Attach File</label>
+            <label id="fileLabel" onclick="document.getElementById('fileInput').click()" style="font-size: 11px; color: var(--accent); cursor:pointer;">📁 Attach</label>
         </div>
 
-        <button class="btn-glow" onclick="sendData()">PUSH TO RELAY</button>
-        <div id="otpDisplay" style="text-align:center; font-size: 24px; margin-top: 20px; font-weight: 100; color: var(--accent);"></div>
+        <button class="btn-glow" onclick="sendData()">PUSH PAYLOAD</button>
+        <div id="otpDisplay" style="text-align:center; font-size: 24px; margin-top: 20px; color: var(--accent); font-family: monospace;"></div>
 
-        <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border);">
-            <div id="stats" style="font-size: 11px; color: #6b7280;">Node Active: <span id="nodeCount">...</span></div>
+        <div style="margin-top: auto;">
+            <div id="stats" style="font-size: 11px; color: #6b7280;">Active Packets: <span id="nodeCount">0</span></div>
             <button onclick="logout()" style="background:none; border:none; color:#f87171; font-size: 11px; cursor:pointer; padding:0; margin-top:10px;">TERMINATE SESSION</button>
         </div>
     </div>
 
     <div id="main-feed">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px;">
-            <h2 style="margin:0;">Global Relay</h2>
-            <input id="search" style="width: 250px; margin:0;" placeholder="🔍 Filter Packets..." oninput="filterMsgs()">
+            <h2 style="margin:0;">Secure Relay</h2>
+            <input id="search" style="width: 250px; margin:0;" placeholder="🔍 Filter Relay..." oninput="filterMsgs()">
         </div>
         <div id="msgs"></div>
     </div>
@@ -157,16 +158,18 @@
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.database().ref("v8_platinum_relay");
+    const db = firebase.database().ref("v9_platinum_stable");
     const MASTER_KEY = "GHOST_ULTRA_2026_KEY";
     let attachedFile = null;
 
     function handleAuth() {
         const email = document.getElementById('email').value, pass = document.getElementById('pass').value;
         auth.signInWithEmailAndPassword(email, pass).catch(e => {
-            auth.createUserWithEmailAndPassword(email, pass).catch(err => {
-                document.getElementById('auth-error').innerText = err.message;
-            });
+            if (e.code === 'auth/user-not-found') {
+                auth.createUserWithEmailAndPassword(email, pass);
+            } else {
+                document.getElementById('auth-error').innerText = e.message;
+            }
         });
     }
 
@@ -181,68 +184,78 @@
 
     function handleFile(input) {
         const file = input.files[0];
+        if (file.size > 2000000) { alert("File too large (>2MB)"); return; }
         const reader = new FileReader();
-        reader.onload = (e) => attachedFile = e.target.result;
+        reader.onload = (e) => {
+            attachedFile = e.target.result;
+            document.getElementById('fileLabel').innerText = "✅ " + file.name.substring(0, 10);
+        };
         reader.readAsDataURL(file);
-        alert("File ready for encryption.");
     }
 
     function sendData() {
         const text = document.getElementById("textInput").value.trim();
-        const dev = document.getElementById("deviceName").value || "Unknown_Node";
+        const dev = document.getElementById("deviceName").value || "Phantom";
         const secure = document.getElementById("isSec").checked;
         const burn = document.getElementById("isBurn").checked;
         const pinned = document.getElementById("isPinned").checked;
         
         if(!text && !attachedFile) return;
 
-        const payload = attachedFile ? attachedFile : text;
+        const payload = attachedFile || text;
         const encrypted = CryptoJS.AES.encrypt(payload, MASTER_KEY).toString();
         const otp = (secure || burn) ? Math.floor(1000 + Math.random()*9000).toString() : null;
 
         if(otp) document.getElementById("otpDisplay").innerText = "OTP: " + otp;
-        
+        else document.getElementById("otpDisplay").innerText = "";
+
         db.push({ dev, payload: encrypted, secure, burn, pinned, otp, time: new Date().toLocaleTimeString(), type: attachedFile ? 'file' : 'text' });
         
         document.getElementById("textInput").value = "";
         attachedFile = null;
+        document.getElementById('fileLabel').innerText = "📁 Attach";
+        document.getElementById('fileInput').value = "";
     }
 
     function initApp() {
         document.getElementById("deviceName").value = localStorage.getItem('gName') || "";
         db.on("child_added", snap => renderCard(snap.key, snap.val()));
+        db.on("child_removed", snap => document.getElementById(`msg-${snap.key}`)?.remove());
         db.on("value", snap => document.getElementById('nodeCount').innerText = snap.numChildren());
     }
 
     function renderCard(id, data) {
         const container = document.getElementById("msgs");
         const card = document.createElement("div");
-        card.className = `premium-card animate__animated animate__fadeInUp ${data.pinned ? 'pinned' : ''}`;
+        card.className = `premium-card animate__animated animate__fadeInUp`;
         card.id = `msg-${id}`;
         if(data.pinned) card.style.borderLeft = "4px solid var(--accent)";
 
         let contentHtml = "";
         if(data.secure || data.burn) {
             contentHtml = `<div id="lock-${id}" style="display:flex; gap:10px; align-items:center;">
-                <input id="in-${id}" placeholder="Enter OTP" style="width:100px; margin:0;">
-                <button onclick="unlock('${id}','${data.otp}','${data.payload}','${data.type}',${data.burn})" class="node-badge" style="border:none; cursor:pointer;">UNLOCK</button>
-            </div><div id="show-${id}" style="display:none; font-size:14px; color:#d1d5db;"></div>`;
+                <input id="in-${id}" placeholder="OTP" style="width:80px; margin:0; padding:8px;">
+                <button onclick="unlock('${id}','${data.otp}','${data.payload}','${data.type}',${data.burn})" class="node-badge" style="cursor:pointer;">DECRYPT</button>
+            </div><div id="show-${id}" style="display:none; font-size:14px; white-space: pre-wrap;"></div>`;
         } else {
             const dec = CryptoJS.AES.decrypt(data.payload, MASTER_KEY).toString(CryptoJS.enc.Utf8);
-            contentHtml = data.type === 'file' ? `<a href="${dec}" download="ghost_file" class="node-badge">📥 DOWNLOAD FILE</a>` : `<p style="margin:0; font-size:14px; color:#d1d5db;">${dec}</p>`;
+            contentHtml = formatContent(dec, data.type);
         }
 
         card.innerHTML = `
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                <div style="display:flex; gap:8px;">
-                    <span class="node-badge">${data.type}</span>
-                    <span style="font-size:11px; color:#6b7280;">${data.time} | <b>${data.dev}</b></span>
-                </div>
-                <span onclick="db.child('${id}').remove()" style="cursor:pointer; font-size:12px; opacity:0.3;">✕</span>
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                <span class="node-badge">${data.type}</span>
+                <span onclick="db.child('${id}').remove()" style="cursor:pointer; opacity:0.3;">✕</span>
             </div>
+            <div style="margin-bottom:10px;"><small style="color:var(--accent)">${data.dev} @ ${data.time}</small></div>
             ${contentHtml}
         `;
-        data.pinned ? container.prepend(card) : container.appendChild(card);
+        data.pinned ? container.prepend(card) : container.insertBefore(card, container.firstChild);
+    }
+
+    function formatContent(dec, type) {
+        if (type === 'file') return `<a href="${dec}" download="ghost_relay" class="node-badge" style="display:inline-block; text-decoration:none;">📥 DOWNLOAD FILE</a>`;
+        return `<p class="copy-btn" onclick="copyText(this)" style="margin:0; font-size:14px; line-height:1.5;">${dec}</p>`;
     }
 
     window.unlock = (id, correct, payload, type, burn) => {
@@ -252,10 +265,19 @@
             document.getElementById(`lock-${id}`).style.display="none";
             const display = document.getElementById(`show-${id}`);
             display.style.display="block";
-            display.innerHTML = type === 'file' ? `<a href="${dec}" download="ghost_file" class="node-badge">📥 DOWNLOAD</a>` : dec;
+            display.innerHTML = formatContent(dec, type);
             if(burn) db.child(id).remove();
+        } else {
+            alert("Unauthorized Access Attempt");
         }
     };
+
+    window.copyText = (el) => {
+        navigator.clipboard.writeText(el.innerText);
+        const originalText = el.innerText;
+        el.innerText = "COPIED TO CLIPBOARD";
+        setTimeout(() => el.innerText = originalText, 1000);
+    }
 
     function filterMsgs() {
         const term = document.getElementById('search').value.toLowerCase();
