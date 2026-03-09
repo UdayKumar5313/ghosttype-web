@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostType Ultra | Enterprise Security</title>
+    <title>GhostType Ultra | Secure Sync</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -18,59 +18,55 @@
         .glass { background: var(--g); backdrop-filter: blur(12px); border: 1px solid var(--b); border-radius: 24px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
         #auth-container { width: 100%; max-width: 400px; text-align: center; }
         
-        .pass-container { position: relative; width: 100%; }
-        .toggle-btn { position: absolute; right: 12px; top: 12px; cursor: pointer; font-size: 14px; opacity: 0.6; color: var(--t); }
+        /* Password container for show/hide */
+        .pass-container { position: relative; width: 100%; margin-bottom: 12px; }
+        .toggle-eye { position: absolute; right: 15px; top: 12px; cursor: pointer; opacity: 0.6; user-select: none; }
         
-        input, textarea { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--b); color: var(--t); border-radius: 12px; padding: 12px; margin-bottom: 12px; box-sizing: border-box; }
-        .btn-p { background: var(--p); color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; margin-top: 5px; }
-        .btn-google { background: white; color: #000; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px; }
+        input, textarea { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--b); color: var(--t); border-radius: 12px; padding: 12px; margin-bottom: 12px; box-sizing: border-box; font-size: 14px; }
+        .btn-p { background: var(--p); color: #000; border: none; padding: 14px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-p:hover { transform: scale(1.02); background: #7dd3fc; }
         
         #app-container { display: none; width: 100%; max-width: 950px; grid-template-columns: 1fr; gap: 20px; }
-        @media (min-width: 768px) { #app-container { display: grid; grid-template-columns: 380px 1fr; align-items: start; } }
+        @media (min-width: 768px) { #app-container { display: grid; grid-template-columns: 380px 1fr; align-items: start; } .sticky { position: sticky; top: 15px; } }
         
         .msg-card { background: var(--g); border: 1px solid var(--b); padding: 15px; margin-bottom: 15px; border-radius: 18px; position: relative; }
-        .logout-btn { background: none; border: 1px solid var(--s); color: var(--s); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 10px; }
+        .logout-btn { background: none; border: 1px solid var(--s); color: var(--s); padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .auth-switch { font-size: 12px; color: #94a3b8; margin-top: 20px; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
 
-    <div id="auth-container" class="glass animate__animated animate__fadeIn">
-        <h1 style="color: var(--p); font-size: 24px; margin-bottom: 5px;">GhostType Ultra</h1>
-        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 25px;">Enterprise Grade Clipboard Sync</p>
+    <div id="auth-container" class="glass animate__animated animate__zoomIn">
+        <h1 id="auth-title" style="color: var(--p); font-size: 24px; margin-bottom: 5px;">GhostType Ultra</h1>
+        <p id="auth-desc" style="font-size: 12px; color: #94a3b8; margin-bottom: 25px;">Enter credentials to unlock sync</p>
         
         <input type="email" id="email" placeholder="Email Address">
         
         <div class="pass-container">
             <input type="password" id="pass" placeholder="Password">
-            <span class="toggle-btn" onclick="togglePassword()">👁️</span>
+            <span class="toggle-eye" onclick="togglePassword()">👁️</span>
         </div>
         
-        <button class="btn-p" onclick="handleAuth(true)">Login / Register</button>
+        <button id="auth-btn" class="btn-p" onclick="handleAuth()">Sign In</button>
         
-        <div style="margin: 20px 0; border-bottom: 1px solid var(--b); position: relative;">
-            <span style="position: absolute; top: -10px; left: 42%; background: #1a1e2e; padding: 0 10px; font-size: 10px; color: #64748b;">OR</span>
-        </div>
-
-        <button class="btn-p btn-google" onclick="googleSignIn()">
-            <img src="https://img.icons8.com/color/24/000000/google-logo.png"/> Continue with Google
-        </button>
-        
-        <p id="auth-error" style="color: var(--s); font-size: 11px; margin-top: 10px;"></p>
+        <p id="toggle-link" class="auth-switch" onclick="toggleMode()">New user? Register account</p>
+        <p id="auth-error" style="color: var(--s); font-size: 11px; margin-top: 12px;"></p>
     </div>
 
     <div id="app-container">
-        <div class="sticky" style="position: sticky; top: 15px;">
-            <div class="glass">
+        <div class="sticky">
+            <div class="glass animate__animated animate__fadeInLeft">
                 <h1 style="display: flex; justify-content: space-between; align-items: center; color: var(--p); font-size: 20px;">
                     SYNC PANEL <button class="logout-btn" onclick="logout()">LOGOUT</button>
                 </h1>
-                <input id="deviceName" placeholder="👤 Identity (e.g. Uday's Phone)">
-                <textarea id="textInput" placeholder="Paste data to sync..."></textarea>
+                <input id="deviceName" placeholder="👤 Identity (e.g. My PC)" oninput="localStorage.setItem('gName', this.value)">
+                <textarea id="textInput" placeholder="Paste data to synchronize..."></textarea>
                 <button class="btn-p" onclick="sendData()">⚡ Sync Clipboard</button>
+                <div id="status-text" style="font-size: 10px; color: #4ade80; text-align: center; margin-top: 10px;">Connected to Firebase</div>
             </div>
         </div>
 
-        <div class="glass">
+        <div class="glass animate__animated animate__fadeInRight">
             <h2 style="margin:0 0 20px 0; font-size:18px;">History Stream</h2>
             <div id="msgs"></div>
         </div>
@@ -92,28 +88,40 @@
     const db = firebase.database().ref("v7_master_sync");
     const MASTER_KEY = "GHOST_ULTRA_2026_KEY";
 
-    // --- AUTH LOGIC ---
+    let isLoginMode = true;
+
+    // --- AUTH UI LOGIC ---
     function togglePassword() {
         const p = document.getElementById("pass");
-        p.type = p.type === "password" ? "text" : "password";
+        const eye = document.querySelector(".toggle-eye");
+        if (p.type === "password") {
+            p.type = "text";
+            eye.innerText = "🔒"; 
+        } else {
+            p.type = "password";
+            eye.innerText = "👁️";
+        }
     }
 
-    function googleSignIn() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(e => {
-            document.getElementById('auth-error').innerText = e.message;
-        });
+    function toggleMode() {
+        isLoginMode = !isLoginMode;
+        document.getElementById("auth-title").innerText = isLoginMode ? "GhostType Ultra" : "Register Account";
+        document.getElementById("auth-btn").innerText = isLoginMode ? "Sign In" : "Register";
+        document.getElementById("toggle-link").innerText = isLoginMode ? "New user? Register account" : "Back to Login";
+        document.getElementById("auth-error").innerText = "";
     }
 
+    // --- AUTH LOGIC ---
     function handleAuth() {
         const email = document.getElementById('email').value;
         const pass = document.getElementById('pass').value;
-        // Attempt login, if fails, attempt register (simplified for demo)
-        auth.signInWithEmailAndPassword(email, pass).catch(() => {
-            auth.createUserWithEmailAndPassword(email, pass).catch(e => {
-                document.getElementById('auth-error').innerText = e.message;
-            });
-        });
+        const err = document.getElementById('auth-error');
+
+        if (isLoginMode) {
+            auth.signInWithEmailAndPassword(email, pass).catch(e => { err.innerText = e.message; });
+        } else {
+            auth.createUserWithEmailAndPassword(email, pass).catch(e => { err.innerText = e.message; });
+        }
     }
 
     function logout() { auth.signOut().then(() => location.reload()); }
@@ -129,7 +137,7 @@
         }
     });
 
-    // --- APP LOGIC ---
+    // --- SYNC LOGIC ---
     function initApp() {
         document.getElementById("deviceName").value = localStorage.getItem('gName') || "";
         db.on("child_added", snap => renderCard(snap.key, snap.val()));
@@ -148,7 +156,7 @@
         const card = document.createElement("div");
         card.className = "msg-card animate__animated animate__fadeInUp";
         const dec = CryptoJS.AES.decrypt(data.payload, MASTER_KEY).toString(CryptoJS.enc.Utf8);
-        card.innerHTML = `<small style="color:var(--p)">👤 ${data.dev} • ${data.time}</small><br><div style="margin-top:8px;">${dec}</div>`;
+        card.innerHTML = `<small style="color:var(--p)">👤 ${data.dev} • ${data.time}</small><br><div style="margin-top:8px; font-size:14px; word-break:break-all;">${dec}</div>`;
         document.getElementById("msgs").prepend(card);
     }
 </script>
