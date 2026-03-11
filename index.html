@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostType Ultra | Seminar Master</title>
+    <title>GhostType Ultra | 2026 Seminar Master</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -34,7 +34,7 @@
         input:focus, textarea:focus { border-color: var(--p); box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); outline: none; }
         .btn-p { background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; border: none; padding: 16px; border-radius: 14px; font-weight: 900; width: 100%; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Message Layout Fixes */
+        /* Message Layout */
         .msg-card { background: rgba(255,255,255,0.02); border: 1px solid var(--b); padding: 20px; margin-bottom: 20px; border-radius: 24px; position: relative; max-width: 100%; overflow: hidden; }
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; margin-bottom: 10px; }
         .card-content { font-size: 14px; line-height: 1.6; padding-left: 18px; word-break: break-word; overflow-wrap: break-word; white-space: pre-wrap; }
@@ -42,7 +42,7 @@
         .trash-btn:hover { opacity: 1; color: #fb7185; }
 
         .bar-wrap { height: 4px; background: rgba(0,0,0,0.5); width: 100%; border-radius: 10px; margin-top: 15px; overflow: hidden; }
-        .bar { height: 100%; background: var(--s); width: 100%; transition: width 1s linear; }
+        .bar { height: 100%; background: var(--s); width: 100%; transition: width 0.05s linear; }
     </style>
 </head>
 <body>
@@ -144,7 +144,7 @@
             avatar.style.backgroundColor = userColor;
             avatar.innerText = user.email.charAt(0);
             document.getElementById('user-display-email').innerText = user.email;
-            init(user.email);
+            init();
         }
     });
 
@@ -193,7 +193,10 @@
                 </div>
                 <span class="trash-btn" onclick="db.child('${id}').remove()">🗑️</span>
             </div>
-            <div style="font-size:9px; margin: -5px 0 10px 18px; opacity:0.6;">Time: ${data.time}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin: -5px 0 10px 18px;">
+                <div style="font-size:9px; opacity:0.6;">Time: ${data.time}</div>
+                <span id="time-txt-${id}" style="font-size:10px; color:var(--s); font-family:monospace; font-weight:bold;"></span>
+            </div>
         `;
 
         if(data.secure) {
@@ -216,11 +219,20 @@
 
     function timer(id, exp, dur) {
         const itv = setInterval(() => {
-            const diff = exp - Date.now();
-            if(diff <= 0) { clearInterval(itv); db.child(id).remove(); return; }
-            const b = document.getElementById(`bar-${id}`); 
-            if(b) b.style.width = (diff/(dur*1000)*100) + "%";
-        }, 1000);
+            const now = Date.now();
+            const diff = exp - now;
+            if (diff <= 0) {
+                clearInterval(itv);
+                db.child(id).remove();
+                return;
+            }
+            const totalSeconds = Math.floor(diff / 1000);
+            const ms = Math.floor(diff % 1000);
+            const bar = document.getElementById(`bar-${id}`); 
+            if (bar) bar.style.width = (diff / (dur * 1000) * 100) + "%";
+            const timeDisplay = document.getElementById(`time-txt-${id}`);
+            if (timeDisplay) timeDisplay.innerText = `${totalSeconds}:${ms.toString().padStart(3, '0')}s`;
+        }, 50);
     }
 
     window.unlock = (id, otp, pay, exp) => {
