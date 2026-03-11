@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostType Ultra | 3D Platinum Master</title>
+    <title>GhostType Ultra | Stealth Master</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -35,10 +35,10 @@
         .btn-paste { background: linear-gradient(135deg, #4ade80, #22c55e); }
 
         .msg-card { background: rgba(15, 23, 42, 0.9); border: 1px solid var(--b); padding: 22px; margin-bottom: 20px; border-radius: 24px; position: relative; width: 100%; box-sizing: border-box; overflow: hidden; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 12px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 8px; }
         .card-header-info { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
         .card-content { font-size: 14px; line-height: 1.6; padding-left: 20px; word-break: break-all; overflow-wrap: break-word; white-space: pre-wrap; color: #cbd5e1; }
-        .trash-btn { flex-shrink: 0; cursor: pointer; opacity: 0.4; transition: 0.2s; font-size: 18px; margin-left: auto; }
+        .trash-btn { flex-shrink: 0; cursor: pointer; opacity: 0.4; transition: 0.2s; font-size: 16px; margin-left: auto; }
         .trash-btn:hover { opacity: 1; color: #fb7185; }
 
         .bar-wrap { height: 4px; background: rgba(0,0,0,0.5); width: 100%; border-radius: 10px; margin-top: 15px; overflow: hidden; }
@@ -50,16 +50,15 @@
     <canvas id="bg-canvas"></canvas>
 
     <div id="main-view-wrapper">
-        <div id="auth-container" class="glass animate__animated animate__zoomIn" style="width: 100%; max-width: 400px; margin: 15vh auto; text-align: center;">
-            <h1 style="color: var(--p); font-size: 28px; margin:0 0 10px 0;">GhostType</h1>
-            <p style="font-size: 13px; color: #64748b; margin-bottom: 25px;">3D Secure Node Access</p>
+        <div id="auth-container" class="glass animate__animated animate__zoomIn" style="width: 100%; max-width: 400px; margin: 25vh auto; text-align: center;">
+            <h1 id="auth-title" style="color: var(--p); font-size: 32px; margin:0 0 25px 0; letter-spacing: -2px;">GT</h1>
             <input type="email" id="email" placeholder="Email">
             <div class="pass-wrapper">
-                <input type="password" id="pass" placeholder="Password">
-                <span class="toggle-pass" onclick="togglePassword()">👁️</span>
+                <input type="password" id="pass" placeholder="Key">
+                <span class="toggle-pass" onclick="togglePassword()">•</span>
             </div>
-            <button class="btn-p" onclick="handleAuth()">Enter Terminal</button>
-            <p style="font-size: 11px; margin-top: 15px; cursor: pointer; opacity: 0.6;" onclick="toggleMode()">Request Registration</p>
+            <button class="btn-p" onclick="handleAuth()" style="margin-top: 10px;">Init</button>
+            <div onclick="toggleMode()" style="font-size: 10px; color: var(--p); cursor: pointer; opacity: 0.4; margin-top: 15px;">SYNC_MODE_TOGGLE</div>
         </div>
     </div>
 
@@ -70,44 +69,37 @@
                     <div class="user-profile">
                         <div id="user-avatar" class="avatar">?</div>
                         <div style="flex:1; overflow:hidden;">
-                            <div id="user-display-email" style="font-size:12px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">User</div>
-                            <div style="font-size:9px; color:var(--p); font-weight:bold;">3D SYNC ACTIVE</div>
+                            <div id="user-display-email" style="font-size:12px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; opacity: 0.7;">User</div>
                         </div>
-                        <button onclick="logout()" style="background:none; border: 1px solid #fb7185; color:#fb7185; font-size:9px; padding:4px 8px; border-radius:8px; cursor:pointer;">EXIT</button>
+                        <button onclick="logout()" style="background:none; border: 1px solid #fb7185; color:#fb7185; font-size:8px; padding:3px 8px; border-radius:6px; cursor:pointer;">X</button>
                     </div>
 
-                    <input id="deviceName" placeholder="👤 Identity (e.g. Hyderabad_Node)">
-                    <textarea id="textInput" placeholder="Paste sensitive data..."></textarea>
+                    <input id="deviceName" placeholder="Node ID">
+                    <textarea id="textInput" placeholder="Data..."></textarea>
                     
                     <button class="btn-p btn-paste" onclick="autoPasteAndSend()">
-                        📋 Paste & Quick Sync
+                        📋 Paste
                     </button>
 
                     <div style="display:flex; gap:10px; margin-bottom:12px; align-items:center;">
-                        <div style="flex:1;">
-                            <small style="color:var(--p); display:block; margin-bottom:5px;">⏳ Timer (Secs)</small>
-                            <input type="number" id="timerInput" value="60" style="margin:0;">
-                        </div>
-                        <label style="flex:0.5; display:flex; flex-direction:column; align-items:center;">
-                            <small style="color:var(--p); margin-bottom:5px;">🔒 OTP</small>
-                            <input type="checkbox" id="isSec" style="width:20px; height:20px;">
+                        <input type="number" id="timerInput" value="60" style="margin:0; flex:1;">
+                        <label style="flex:0.3; display:flex; justify-content:center;">
+                            <input type="checkbox" id="isSec" style="width:18px; height:18px;">
                         </label>
                     </div>
 
-                    <button class="btn-p" onclick="sendData()">Encrypt & Push</button>
+                    <button class="btn-p" onclick="sendData()">Relay</button>
                     <div id="otpDisplay" style="text-align:center; color:#fb7185; font-weight:bold; margin-top:15px; font-family: monospace; font-size: 20px;"></div>
                 </div>
             </div>
 
             <div class="history-section">
-                <h2 style="margin: 0 0 20px 0; font-size: 20px; color: var(--p);">3D Relay Stream</h2>
                 <div id="msgs"></div>
             </div>
         </div>
     </template>
 
 <script>
-    // --- 3D BACKGROUND ---
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let w, h, points = [];
@@ -138,7 +130,6 @@
     }
     window.addEventListener('resize', init3D); init3D(); animate3D();
 
-    // --- UTILS ---
     function stringToColor(str) {
         let hash = 0;
         for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -155,10 +146,9 @@
         try {
             const text = await navigator.clipboard.readText();
             if (text) { document.getElementById("textInput").value = text; sendData(); }
-        } catch (err) { alert("Enable Clipboard Permissions in address bar."); }
+        } catch (err) { alert("Enable Clipboard."); }
     }
 
-    // --- FIREBASE ---
     const firebaseConfig = {
         apiKey: "AIzaSyDRsNoO7wS4tY9G_VFwRTsTDWwHaYbJGl4",
         authDomain: "ghosttype-67c57.firebaseapp.com",
@@ -172,7 +162,10 @@
     const sound = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
 
     let isLogin = true;
-    function toggleMode() { isLogin = !isLogin; document.querySelector('#auth-container h1').innerText = isLogin ? "GhostType" : "Register Node"; }
+    function toggleMode() { 
+        isLogin = !isLogin; 
+        document.getElementById('auth-title').innerText = isLogin ? "GT" : "GT_REG"; 
+    }
     
     function handleAuth() {
         const e = document.getElementById('email').value, p = document.getElementById('pass').value;
@@ -185,20 +178,14 @@
     auth.onAuthStateChanged(user => {
         const wrapper = document.getElementById('main-view-wrapper');
         if (user) {
-            // REMOVE Auth Panel completely and INJECT App Terminal
             const template = document.getElementById('app-template');
             wrapper.innerHTML = ""; 
             wrapper.appendChild(template.content.cloneNode(true));
-            
-            // Set User Identity UI
             const userColor = stringToColor(user.email);
             const avatar = document.getElementById('user-avatar');
             avatar.style.backgroundColor = userColor; avatar.innerText = user.email.charAt(0);
             document.getElementById('user-display-email').innerText = user.email;
-            
             init();
-        } else {
-            // (Page reloads on logout anyway, handled by logout() function)
         }
     });
 
@@ -218,7 +205,7 @@
         const enc = CryptoJS.AES.encrypt(txt, KEY).toString();
         let otp = sec ? Math.floor(100000 + Math.random()*900000).toString() : null;
         let exp = sec ? Date.now() + (dur * 1000) : null;
-        if(sec) document.getElementById("otpDisplay").innerText = "OTP: " + otp;
+        if(sec) document.getElementById("otpDisplay").innerText = otp;
         db.push({ dev, payload: enc, secure: sec, otp, exp, duration: dur, sender: auth.currentUser.email, senderColor: stringToColor(auth.currentUser.email), time: new Date().toLocaleTimeString() });
         document.getElementById("textInput").value = "";
     }
@@ -235,14 +222,13 @@
                 <div class="card-header-info">
                     <div style="width:12px; height:12px; flex-shrink:0; border-radius:50%; background:${data.senderColor}; box-shadow: 0 0 8px ${data.senderColor};"></div>
                     <div style="overflow:hidden;">
-                        <small style="color:var(--p); font-weight:bold; display:block;">${data.dev}</small>
-                        <small style="font-size:10px; opacity:0.5; display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${data.sender}</small>
+                        <small style="color:var(--p); font-weight:bold; display:block; opacity: 0.8;">${data.dev}</small>
                     </div>
                 </div>
-                <span class="trash-btn" onclick="db.child('${id}').remove()">🗑️</span>
+                <span class="trash-btn" onclick="db.child('${id}').remove()">🗑</span>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-left:22px; margin-bottom:10px;">
-                <div style="font-size:9px; opacity:0.6;">${data.time}</div>
+                <div style="font-size:9px; opacity:0.4;">${data.time}</div>
                 <span id="time-txt-${id}" style="font-size:10px; color:var(--s); font-family:monospace; font-weight:bold;"></span>
             </div>
         `;
@@ -252,7 +238,7 @@
                 <div class="bar-wrap"><div class="bar" id="bar-${id}"></div></div>
                 <div id="l-${id}" style="margin-top:15px; display:flex; gap:10px; padding-left:20px;">
                     <input id="i-${id}" placeholder="OTP" style="margin:0; width:90px; padding:10px; background:rgba(0,0,0,0.4);">
-                    <button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" style="padding:10px 20px; background:var(--s); color:white; border:none; border-radius:12px; cursor:pointer; font-size:11px; font-weight:bold;">Unlock</button>
+                    <button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" style="padding:10px 20px; background:var(--s); color:white; border:none; border-radius:12px; cursor:pointer; font-size:11px; font-weight:bold;">OPEN</button>
                 </div>
                 <div id="s-${id}" class="card-content" style="display:none; color:var(--p); font-weight:bold; margin-top:10px;"></div>
             `;
@@ -274,7 +260,7 @@
             const bar = document.getElementById(`bar-${id}`); 
             if (bar) bar.style.width = (diff / (dur * 1000) * 100) + "%";
             const tTxt = document.getElementById(`time-txt-${id}`);
-            if (tTxt) tTxt.innerText = `${totalSeconds}:${ms.toString().padStart(3, '0')}s`;
+            if (tTxt) tTxt.innerText = `${totalSeconds}:${ms.toString().padStart(3, '0')}`;
         }, 50);
     }
 
@@ -285,7 +271,7 @@
             document.getElementById(`s-${id}`).innerText = dec;
             document.getElementById(`s-${id}`).style.display="block";
             navigator.clipboard.writeText(dec);
-        } else { alert("Access Denied: Invalid OTP"); }
+        } else { alert("DENIED"); }
     };
 </script>
 </body>
