@@ -1,51 +1,256 @@
-function render(id, data, myEmail) {
-    const card = document.createElement("div");
-    card.className = "msg-card animate__animated animate__fadeInUp";
-    card.id = `msg-${id}`;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GhostType Ultra | Seminar Master</title>
     
-    // Header for Identity and Delete Button - This stays aligned!
-    let h = `
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%; margin-bottom:10px;">
-            <div style="display:flex; align-items:center; gap:8px; max-width: 85%;">
-                <div style="width:12px; height:12px; border-radius:50%; background:${data.senderColor}; flex-shrink:0;"></div>
-                <div style="overflow:hidden;">
-                    <div style="color:var(--p); font-weight:bold; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                        ${data.dev}
-                    </div>
-                    <div style="font-size:10px; opacity:0.5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                        ${data.sender}
-                    </div>
-                </div>
-            </div>
-            <span class="trash-btn" onclick="db.child('${id}').remove()" style="cursor:pointer; opacity:0.6; font-size:18px; padding-left:10px; flex-shrink:0;">🗑️</span>
-        </div>
-        <div style="font-size:9px; margin-bottom:10px; color:var(--p); opacity:0.7;">Time: ${data.time}</div>
-    `;
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
+    <style>
+        :root { --p: #38bdf8; --s: #f472b6; --bg: #020617; --g: rgba(255,255,255,0.03); --b: rgba(255,255,255,0.08); --t: #f8fafc; }
+        
+        body { background: #020617; color: var(--t); font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at center, #0f172a 0%, #020617 100%); }
 
-    // Content Area - Handles large text wrap
-    if(data.secure) {
-        h += `
-            <div style="padding-left:20px;">
-                <div class="bar-wrap"><div class="bar" id="bar-${id}"></div></div>
-                <div id="l-${id}" style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <input id="i-${id}" placeholder="OTP" style="margin:0; width:100px; padding:8px; background:rgba(0,0,0,0.3);">
-                    <button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" style="padding:8px 15px; background:var(--s); color:white; border:none; border-radius:10px; cursor:pointer; font-size:11px; font-weight:bold;">Unlock</button>
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 20px; padding: 20px; box-sizing: border-box; }
+        @media (min-width: 992px) { .container { grid-template-columns: 400px 1fr; padding: 40px; gap: 40px; } .sticky-panel { position: sticky; top: 40px; } }
+
+        .glass { background: var(--g); backdrop-filter: blur(20px); border: 1px solid var(--b); border-radius: 28px; padding: clamp(15px, 5vw, 30px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); }
+
+        /* User Identity Header */
+        .user-profile { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 20px; border: 1px solid var(--b); }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-transform: uppercase; font-size: 18px; flex-shrink: 0; }
+        
+        /* Auth Screen */
+        .pass-wrapper { position: relative; width: 100%; margin-bottom: 12px; }
+        .toggle-pass { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.6; }
+
+        input, textarea { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--b); color: var(--t); border-radius: 14px; padding: 14px; margin-bottom: 12px; box-sizing: border-box; font-size: 14px; transition: 0.3s; }
+        input:focus, textarea:focus { border-color: var(--p); box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); outline: none; }
+        .btn-p { background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; border: none; padding: 16px; border-radius: 14px; font-weight: 900; width: 100%; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Message Layout Fixes */
+        .msg-card { background: rgba(255,255,255,0.02); border: 1px solid var(--b); padding: 20px; margin-bottom: 20px; border-radius: 24px; position: relative; max-width: 100%; overflow: hidden; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; margin-bottom: 10px; }
+        .card-content { font-size: 14px; line-height: 1.6; padding-left: 18px; word-break: break-word; overflow-wrap: break-word; white-space: pre-wrap; }
+        .trash-btn { flex-shrink: 0; cursor: pointer; opacity: 0.3; transition: 0.2s; font-size: 18px; }
+        .trash-btn:hover { opacity: 1; color: #fb7185; }
+
+        .bar-wrap { height: 4px; background: rgba(0,0,0,0.5); width: 100%; border-radius: 10px; margin-top: 15px; overflow: hidden; }
+        .bar { height: 100%; background: var(--s); width: 100%; transition: width 1s linear; }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div id="auth-container" class="glass animate__animated animate__zoomIn" style="width: 100%; max-width: 400px; margin: 15vh auto; text-align: center;">
+        <h1 style="color: var(--p); font-size: 28px; margin:0 0 10px 0;">GhostType</h1>
+        <p style="font-size: 13px; color: #64748b; margin-bottom: 25px;">Encrypted Node Access</p>
+        <input type="email" id="email" placeholder="Email">
+        <div class="pass-wrapper">
+            <input type="password" id="pass" placeholder="Password">
+            <span class="toggle-pass" onclick="togglePassword()">👁️</span>
+        </div>
+        <button class="btn-p" onclick="handleAuth()">Enter Terminal</button>
+        <p style="font-size: 11px; margin-top: 15px; cursor: pointer; opacity: 0.6;" onclick="toggleMode()">Request Registration</p>
+    </div>
+
+    <div id="app-container" class="container" style="display: none;">
+        <div class="sticky-panel">
+            <div class="glass animate__animated animate__fadeInLeft">
+                <div class="user-profile">
+                    <div id="user-avatar" class="avatar">?</div>
+                    <div style="flex:1; overflow:hidden;">
+                        <div id="user-display-email" style="font-size:12px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">User</div>
+                        <div style="font-size:9px; color:var(--p); font-weight:bold;">ENCRYPTION ACTIVE</div>
+                    </div>
+                    <button onclick="logout()" style="background:none; border: 1px solid #fb7185; color:#fb7185; font-size:9px; padding:4px 8px; border-radius:8px; cursor:pointer;">EXIT</button>
                 </div>
-                <div id="s-${id}" style="display:none; margin-top:12px; font-weight:bold; color:var(--p); word-break:break-all; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px;"></div>
-            </div>`;
-        timer(id, data.exp, data.duration);
-    } else {
-        const dec = CryptoJS.AES.decrypt(data.payload, KEY).toString(CryptoJS.enc.Utf8);
-        h += `
-            <div style="margin-top:5px; font-size:14px; padding-left:20px; word-break:break-all; overflow-wrap:anywhere; line-height:1.6;">
-                ${dec}
+
+                <input id="deviceName" placeholder="👤 Identity (e.g. Hyderabad_Node)">
+                <textarea id="textInput" placeholder="Paste sensitive data..."></textarea>
+                
+                <div style="display:flex; gap:10px; margin-bottom:12px; align-items:center;">
+                    <div style="flex:1;">
+                        <small style="color:var(--p); display:block; margin-bottom:5px;">⏳ Timer (Secs)</small>
+                        <input type="number" id="timerInput" value="60" style="margin:0;">
+                    </div>
+                    <label style="flex:0.5; display:flex; flex-direction:column; align-items:center;">
+                        <small style="color:var(--p); margin-bottom:5px;">🔒 OTP</small>
+                        <input type="checkbox" id="isSec" style="width:20px; height:20px;">
+                    </label>
+                </div>
+
+                <button class="btn-p" onclick="sendData()">Encrypt & Push</button>
+                <div id="otpDisplay" style="text-align:center; color:#fb7185; font-weight:bold; margin-top:15px; font-family: monospace; font-size: 20px;"></div>
             </div>
-            <div style="padding-left:20px; margin-top:12px;">
-                <button onclick="navigator.clipboard.writeText('${dec}'); alert('Unified!')" style="background:var(--p); border:none; border-radius:10px; font-size:10px; padding:6px 15px; cursor:pointer; color:#0f172a; font-weight:900;">COPY CLIPBOARD</button>
-            </div>
-        `;
+        </div>
+
+        <div class="history-section">
+            <h2 style="margin: 0 0 20px 0; font-size: 20px; color: var(--p);">Relay Stream</h2>
+            <div id="msgs"></div>
+        </div>
+    </div>
+
+<script>
+    // --- IDENTITY HELPERS ---
+    function stringToColor(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        let color = '#';
+        for (let i = 0; i < 3; i++) color += ('00' + ((hash >> (i * 8)) & 0xFF).toString(16)).substr(-2);
+        return color;
     }
-    
-    card.innerHTML = h;
-    document.getElementById("msgs").prepend(card);
-}
+
+    function togglePassword() {
+        const p = document.getElementById('pass');
+        p.type = p.type === 'password' ? 'text' : 'password';
+    }
+
+    // --- FIREBASE CONFIG ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyDRsNoO7wS4tY9G_VFwRTsTDWwHaYbJGl4",
+        authDomain: "ghosttype-67c57.firebaseapp.com",
+        databaseURL: "https://ghosttype-67c57-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "ghosttype-67c57"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database().ref("v7_master_sync");
+    const KEY = "GHOST_ULTRA_2026_KEY";
+    const sound = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+
+    let isLogin = true;
+    function toggleMode() { isLogin = !isLogin; document.querySelector('#auth-container h1').innerText = isLogin ? "GhostType" : "Register Node"; }
+    function handleAuth() {
+        const e = document.getElementById('email').value, p = document.getElementById('pass').value;
+        if(isLogin) auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
+        else auth.createUserWithEmailAndPassword(e, p).catch(err => alert(err.message));
+    }
+    function logout() { auth.signOut().then(() => location.reload()); }
+
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('app-container').style.display = 'grid';
+            const userColor = stringToColor(user.email);
+            const avatar = document.getElementById('user-avatar');
+            avatar.style.backgroundColor = userColor;
+            avatar.innerText = user.email.charAt(0);
+            document.getElementById('user-display-email').innerText = user.email;
+            init(user.email);
+        }
+    });
+
+    function init() {
+        document.getElementById("deviceName").value = localStorage.getItem('gName') || "";
+        db.on("child_added", snap => render(snap.key, snap.val()));
+        db.on("child_removed", snap => { document.getElementById(`msg-${snap.key}`)?.remove(); });
+    }
+
+    function sendData() {
+        const txt = document.getElementById("textInput").value.trim();
+        const dev = document.getElementById("deviceName").value || "Node";
+        const sec = document.getElementById("isSec").checked;
+        const dur = parseInt(document.getElementById("timerInput").value) || 60;
+        
+        if(!txt) return;
+        localStorage.setItem('gName', dev);
+
+        const enc = CryptoJS.AES.encrypt(txt, KEY).toString();
+        let otp = sec ? Math.floor(100000 + Math.random()*900000).toString() : null;
+        let exp = sec ? Date.now() + (dur * 1000) : null;
+
+        if(sec) document.getElementById("otpDisplay").innerText = "OTP: " + otp;
+        db.push({ 
+            dev, payload: enc, secure: sec, otp, exp, duration: dur, 
+            sender: auth.currentUser.email, senderColor: stringToColor(auth.currentUser.email),
+            time: new Date().toLocaleTimeString() 
+        });
+        document.getElementById("textInput").value = "";
+    }
+
+    function render(id, data) {
+        sound.play().catch(()=>{});
+        const card = document.createElement("div");
+        card.className = "msg-card animate__animated animate__fadeInUp";
+        card.id = `msg-${id}`;
+        
+        let html = `
+            <div class="card-header">
+                <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
+                    <div style="width:10px; height:10px; flex-shrink:0; border-radius:50%; background:${data.senderColor}"></div>
+                    <div style="overflow:hidden;">
+                        <small style="color:var(--p); font-weight:bold; display:block;">${data.dev}</small>
+                        <small style="font-size:9px; opacity:0.5; display:block; text-overflow:ellipsis; overflow:hidden;">${data.sender}</small>
+                    </div>
+                </div>
+                <span class="trash-btn" onclick="db.child('${id}').remove()">🗑️</span>
+            </div>
+            <div style="font-size:9px; margin: -5px 0 10px 18px; opacity:0.6;">Time: ${data.time}</div>
+        `;
+
+        if(data.secure) {
+            html += `
+                <div class="bar-wrap"><div class="bar" id="bar-${id}"></div></div>
+                <div id="l-${id}" style="margin-top:10px; display:flex; gap:10px;">
+                    <input id="i-${id}" placeholder="OTP" style="margin:0; width:80px; padding:8px;">
+                    <button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" style="padding:8px; background:var(--s); color:white; border:none; border-radius:10px; cursor:pointer; font-size:11px;">Unlock</button>
+                </div>
+                <div id="s-${id}" class="card-content" style="display:none; color:var(--p); font-weight:bold;"></div>
+            `;
+            timer(id, data.exp, data.duration);
+        } else {
+            const dec = CryptoJS.AES.decrypt(data.payload, KEY).toString(CryptoJS.enc.Utf8);
+            html += `<div class="card-content">${dec}</div>`;
+        }
+        card.innerHTML = html;
+        document.getElementById("msgs").prepend(card);
+    }
+
+    function timer(id, exp, dur) {
+        const itv = setInterval(() => {
+            const diff = exp - Date.now();
+            if(diff <= 0) { clearInterval(itv); db.child(id).remove(); return; }
+            const b = document.getElementById(`bar-${id}`); 
+            if(b) b.style.width = (diff/(dur*1000)*100) + "%";
+        }, 1000);
+    }
+
+    window.unlock = (id, otp, pay, exp) => {
+        if(document.getElementById(`i-${id}`).value === otp && Date.now() < exp) {
+            const dec = CryptoJS.AES.decrypt(pay, KEY).toString(CryptoJS.enc.Utf8);
+            document.getElementById(`l-${id}`).style.display="none";
+            document.getElementById(`s-${id}`).innerText = dec;
+            document.getElementById(`s-${id}`).style.display="block";
+            navigator.clipboard.writeText(dec);
+        } else { alert("Wrong OTP!"); }
+    };
+
+    // --- BACKGROUND CANVAS ---
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = resize; resize();
+    class Particle {
+        constructor() { this.x = Math.random()*canvas.width; this.y = Math.random()*canvas.height; this.vx = (Math.random()-0.5)*0.3; this.vy = (Math.random()-0.5)*0.3; }
+        update() { this.x += this.vx; this.y += this.vy; if(this.x<0||this.x>canvas.width) this.vx*=-1; if(this.y<0||this.y>canvas.height) this.vy*=-1; }
+    }
+    for(let i=0; i<60; i++) particles.push(new Particle());
+    function animate() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = "rgba(56, 189, 248, 0.2)";
+        particles.forEach(p => { p.update(); ctx.beginPath(); ctx.arc(p.x, p.y, 1, 0, Math.PI*2); ctx.fill(); });
+        requestAnimationFrame(animate);
+    }
+    animate();
+</script>
+</body>
+</html>
