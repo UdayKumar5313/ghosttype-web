@@ -32,10 +32,8 @@
         input:focus, textarea:focus { border-color: var(--p); box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); outline: none; }
         
         .btn-p { background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; border: none; padding: 16px; border-radius: 14px; font-weight: 900; width: 100%; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-        .btn-p:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(56, 189, 248, 0.3); }
         .btn-paste { background: linear-gradient(135deg, #4ade80, #22c55e); }
 
-        /* STREAM LAYOUT HARDENING */
         .msg-card { background: rgba(15, 23, 42, 0.9); border: 1px solid var(--b); padding: 22px; margin-bottom: 20px; border-radius: 24px; position: relative; width: 100%; box-sizing: border-box; overflow: hidden; }
         .card-header { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 12px; }
         .card-header-info { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
@@ -51,58 +49,62 @@
 
     <canvas id="bg-canvas"></canvas>
 
-    <div id="auth-container" class="glass animate__animated animate__zoomIn" style="width: 100%; max-width: 400px; margin: 15vh auto; text-align: center;">
-        <h1 style="color: var(--p); font-size: 28px; margin:0 0 10px 0;">GhostType</h1>
-        <p style="font-size: 13px; color: #64748b; margin-bottom: 25px;">3D Secure Node Access</p>
-        <input type="email" id="email" placeholder="Email">
-        <div class="pass-wrapper">
-            <input type="password" id="pass" placeholder="Password">
-            <span class="toggle-pass" onclick="togglePassword()">👁️</span>
+    <div id="main-view-wrapper">
+        <div id="auth-container" class="glass animate__animated animate__zoomIn" style="width: 100%; max-width: 400px; margin: 15vh auto; text-align: center;">
+            <h1 style="color: var(--p); font-size: 28px; margin:0 0 10px 0;">GhostType</h1>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 25px;">3D Secure Node Access</p>
+            <input type="email" id="email" placeholder="Email">
+            <div class="pass-wrapper">
+                <input type="password" id="pass" placeholder="Password">
+                <span class="toggle-pass" onclick="togglePassword()">👁️</span>
+            </div>
+            <button class="btn-p" onclick="handleAuth()">Enter Terminal</button>
+            <p style="font-size: 11px; margin-top: 15px; cursor: pointer; opacity: 0.6;" onclick="toggleMode()">Request Registration</p>
         </div>
-        <button class="btn-p" onclick="handleAuth()">Enter Terminal</button>
-        <p style="font-size: 11px; margin-top: 15px; cursor: pointer; opacity: 0.6;" onclick="toggleMode()">Request Registration</p>
     </div>
 
-    <div id="app-container" class="container" style="display: none;">
-        <div class="sticky-panel">
-            <div class="glass animate__animated animate__fadeInLeft">
-                <div class="user-profile">
-                    <div id="user-avatar" class="avatar">?</div>
-                    <div style="flex:1; overflow:hidden;">
-                        <div id="user-display-email" style="font-size:12px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">User</div>
-                        <div style="font-size:9px; color:var(--p); font-weight:bold;">3D SYNC ACTIVE</div>
+    <template id="app-template">
+        <div id="app-container" class="container">
+            <div class="sticky-panel">
+                <div class="glass animate__animated animate__fadeInLeft">
+                    <div class="user-profile">
+                        <div id="user-avatar" class="avatar">?</div>
+                        <div style="flex:1; overflow:hidden;">
+                            <div id="user-display-email" style="font-size:12px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">User</div>
+                            <div style="font-size:9px; color:var(--p); font-weight:bold;">3D SYNC ACTIVE</div>
+                        </div>
+                        <button onclick="logout()" style="background:none; border: 1px solid #fb7185; color:#fb7185; font-size:9px; padding:4px 8px; border-radius:8px; cursor:pointer;">EXIT</button>
                     </div>
-                    <button onclick="logout()" style="background:none; border: 1px solid #fb7185; color:#fb7185; font-size:9px; padding:4px 8px; border-radius:8px; cursor:pointer;">EXIT</button>
-                </div>
 
-                <input id="deviceName" placeholder="👤 Identity (e.g. Hyderabad_Node)">
-                <textarea id="textInput" placeholder="Paste sensitive data..."></textarea>
-                
-                <button class="btn-p btn-paste" onclick="autoPasteAndSend()">
-                    📋 Paste & Quick Sync
-                </button>
+                    <input id="deviceName" placeholder="👤 Identity (e.g. Hyderabad_Node)">
+                    <textarea id="textInput" placeholder="Paste sensitive data..."></textarea>
+                    
+                    <button class="btn-p btn-paste" onclick="autoPasteAndSend()">
+                        📋 Paste & Quick Sync
+                    </button>
 
-                <div style="display:flex; gap:10px; margin-bottom:12px; align-items:center;">
-                    <div style="flex:1;">
-                        <small style="color:var(--p); display:block; margin-bottom:5px;">⏳ Timer (Secs)</small>
-                        <input type="number" id="timerInput" value="60" style="margin:0;">
+                    <div style="display:flex; gap:10px; margin-bottom:12px; align-items:center;">
+                        <div style="flex:1;">
+                            <small style="color:var(--p); display:block; margin-bottom:5px;">⏳ Timer (Secs)</small>
+                            <input type="number" id="timerInput" value="60" style="margin:0;">
+                        </div>
+                        <label style="flex:0.5; display:flex; flex-direction:column; align-items:center;">
+                            <small style="color:var(--p); margin-bottom:5px;">🔒 OTP</small>
+                            <input type="checkbox" id="isSec" style="width:20px; height:20px;">
+                        </label>
                     </div>
-                    <label style="flex:0.5; display:flex; flex-direction:column; align-items:center;">
-                        <small style="color:var(--p); margin-bottom:5px;">🔒 OTP</small>
-                        <input type="checkbox" id="isSec" style="width:20px; height:20px;">
-                    </label>
-                </div>
 
-                <button class="btn-p" onclick="sendData()">Encrypt & Push</button>
-                <div id="otpDisplay" style="text-align:center; color:#fb7185; font-weight:bold; margin-top:15px; font-family: monospace; font-size: 20px;"></div>
+                    <button class="btn-p" onclick="sendData()">Encrypt & Push</button>
+                    <div id="otpDisplay" style="text-align:center; color:#fb7185; font-weight:bold; margin-top:15px; font-family: monospace; font-size: 20px;"></div>
+                </div>
+            </div>
+
+            <div class="history-section">
+                <h2 style="margin: 0 0 20px 0; font-size: 20px; color: var(--p);">3D Relay Stream</h2>
+                <div id="msgs"></div>
             </div>
         </div>
-
-        <div class="history-section">
-            <h2 style="margin: 0 0 20px 0; font-size: 20px; color: var(--p);">3D Relay Stream</h2>
-            <div id="msgs"></div>
-        </div>
-    </div>
+    </template>
 
 <script>
     // --- 3D BACKGROUND ---
@@ -136,7 +138,7 @@
     }
     window.addEventListener('resize', init3D); init3D(); animate3D();
 
-    // --- UTILITIES ---
+    // --- UTILS ---
     function stringToColor(str) {
         let hash = 0;
         for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -171,29 +173,37 @@
 
     let isLogin = true;
     function toggleMode() { isLogin = !isLogin; document.querySelector('#auth-container h1').innerText = isLogin ? "GhostType" : "Register Node"; }
+    
     function handleAuth() {
         const e = document.getElementById('email').value, p = document.getElementById('pass').value;
         if(isLogin) auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
         else auth.createUserWithEmailAndPassword(e, p).catch(err => alert(err.message));
     }
+    
     function logout() { auth.signOut().then(() => location.reload()); }
 
     auth.onAuthStateChanged(user => {
+        const wrapper = document.getElementById('main-view-wrapper');
         if (user) {
-            document.getElementById('auth-container').style.display = 'none';
-            document.getElementById('app-container').style.display = 'grid';
+            // REMOVE Auth Panel completely and INJECT App Terminal
+            const template = document.getElementById('app-template');
+            wrapper.innerHTML = ""; 
+            wrapper.appendChild(template.content.cloneNode(true));
+            
+            // Set User Identity UI
             const userColor = stringToColor(user.email);
             const avatar = document.getElementById('user-avatar');
             avatar.style.backgroundColor = userColor; avatar.innerText = user.email.charAt(0);
             document.getElementById('user-display-email').innerText = user.email;
+            
             init();
+        } else {
+            // (Page reloads on logout anyway, handled by logout() function)
         }
     });
 
     function init() {
         document.getElementById("deviceName").value = localStorage.getItem('gName') || "";
-        // PREVENT DUPLICATE TABS: Clear list on init or rely on ID check
-        document.getElementById("msgs").innerHTML = ""; 
         db.on("child_added", snap => render(snap.key, snap.val()));
         db.on("child_removed", snap => { document.getElementById(`msg-${snap.key}`)?.remove(); });
     }
@@ -214,9 +224,7 @@
     }
 
     function render(id, data) {
-        // ID CHECK: Absolute prevention of duplicate tabs
         if (document.getElementById(`msg-${id}`)) return;
-
         sound.play().catch(()=>{});
         const card = document.createElement("div");
         card.className = "msg-card animate__animated animate__fadeInUp";
