@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostType Ultra | Platinum Master Build</title>
+    <title>GhostType Ultra | 3D Platinum Master</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -31,7 +31,7 @@
         input, textarea { width: 100%; background: rgba(0,0,0,0.6); border: 1px solid var(--b); color: var(--t); border-radius: 14px; padding: 14px; margin-bottom: 12px; box-sizing: border-box; font-size: 14px; transition: 0.3s; }
         input:focus, textarea:focus { border-color: var(--p); box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); outline: none; }
         
-        .btn-p { background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; border: none; padding: 16px; border-radius: 14px; font-weight: 900; width: 100%; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; width: 100%; margin-bottom: 10px; }
+        .btn-p { background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; border: none; padding: 16px; border-radius: 14px; font-weight: 900; width: 100%; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
         .btn-p:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(56, 189, 248, 0.3); }
         .btn-paste { background: linear-gradient(135deg, #4ade80, #22c55e); }
 
@@ -144,7 +144,20 @@
     init3D();
     animate3D();
 
-    // --- IDENTITY & UI HELPERS ---
+    // --- AUTO PASTE FEATURE ---
+    async function autoPasteAndSend() {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) {
+                document.getElementById("textInput").value = text;
+                sendData();
+            }
+        } catch (err) {
+            alert("Clipboard denied. Click the 'lock' icon in the address bar to allow paste permissions.");
+        }
+    }
+
+    // --- IDENTITY HELPERS ---
     function stringToColor(str) {
         let hash = 0;
         for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -156,19 +169,6 @@
     function togglePassword() {
         const p = document.getElementById('pass');
         p.type = p.type === 'password' ? 'text' : 'password';
-    }
-
-    // --- AUTO PASTE FEATURE ---
-    async function autoPasteAndSend() {
-        try {
-            const text = await navigator.clipboard.readText();
-            if (text) {
-                document.getElementById("textInput").value = text;
-                sendData();
-            }
-        } catch (err) {
-            alert("Please allow Clipboard Access in your browser settings to use Quick Sync.");
-        }
     }
 
     // --- FIREBASE CONFIG ---
@@ -217,6 +217,7 @@
         const dev = document.getElementById("deviceName").value || "Node";
         const sec = document.getElementById("isSec").checked;
         const dur = parseInt(document.getElementById("timerInput").value) || 60;
+        
         if(!txt) return;
         localStorage.setItem('gName', dev);
 
@@ -245,13 +246,13 @@
                     <div style="width:10px; height:10px; flex-shrink:0; border-radius:50%; background:${data.senderColor}"></div>
                     <div style="overflow:hidden;">
                         <small style="color:var(--p); font-weight:bold; display:block;">${data.dev}</small>
-                        <small style="font-size:9px; opacity:0.5; display:block;">${data.sender}</small>
+                        <small style="font-size:9px; opacity:0.5; display:block; text-overflow:ellipsis; overflow:hidden;">${data.sender}</small>
                     </div>
                 </div>
                 <span class="trash-btn" onclick="db.child('${id}').remove()">🗑️</span>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin: -5px 0 10px 18px;">
-                <div style="font-size:9px; opacity:0.6;">${data.time}</div>
+                <div style="font-size:9px; opacity:0.6;">Time: ${data.time}</div>
                 <span id="time-txt-${id}" style="font-size:10px; color:var(--s); font-family:monospace; font-weight:bold;"></span>
             </div>
         `;
@@ -278,7 +279,11 @@
         const itv = setInterval(() => {
             const now = Date.now();
             const diff = exp - now;
-            if (diff <= 0) { clearInterval(itv); db.child(id).remove(); return; }
+            if (diff <= 0) {
+                clearInterval(itv);
+                db.child(id).remove();
+                return;
+            }
             const totalSeconds = Math.floor(diff / 1000);
             const ms = Math.floor(diff % 1000);
             const bar = document.getElementById(`bar-${id}`); 
