@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostType Ultra | 3D Platinum Master</title>
+    <title>GhostType Ultra | Platinum Master Build</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -20,7 +20,7 @@
         .container { width: 100%; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 20px; padding: 20px; box-sizing: border-box; }
         @media (min-width: 992px) { .container { grid-template-columns: 400px 1fr; padding: 40px; gap: 40px; } .sticky-panel { position: sticky; top: 40px; } }
 
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(25px); border: 1px solid var(--b); border-radius: 28px; padding: clamp(15px, 5vw, 30px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); }
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(25px); border: 1px solid var(--b); border-radius: 28px; padding: clamp(15px, 5vw, 30px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); }
 
         .user-profile { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 20px; border: 1px solid var(--b); }
         .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-transform: uppercase; font-size: 18px; flex-shrink: 0; }
@@ -31,10 +31,9 @@
         input, textarea { width: 100%; background: rgba(0,0,0,0.6); border: 1px solid var(--b); color: var(--t); border-radius: 14px; padding: 14px; margin-bottom: 12px; box-sizing: border-box; font-size: 14px; transition: 0.3s; }
         input:focus, textarea:focus { border-color: var(--p); box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); outline: none; }
         
-        .btn-p { background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; border: none; padding: 16px; border-radius: 14px; font-weight: 900; width: 100%; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-        .btn-p:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(56, 189, 248, 0.3); }
-        
-        .btn-auto { background: linear-gradient(135deg, #4ade80, #22c55e); color: #020617; }
+        .btn-p { background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; border: none; padding: 16px; border-radius: 14px; font-weight: 900; width: 100%; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; width: 100%; margin-bottom: 10px; }
+        .btn-p:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(56, 189, 248, 0.3); }
+        .btn-paste { background: linear-gradient(135deg, #4ade80, #22c55e); }
 
         .msg-card { background: rgba(15, 23, 42, 0.9); border: 1px solid var(--b); padding: 20px; margin-bottom: 20px; border-radius: 24px; position: relative; max-width: 100%; overflow: hidden; }
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; margin-bottom: 10px; }
@@ -69,7 +68,7 @@
                     <div id="user-avatar" class="avatar">?</div>
                     <div style="flex:1; overflow:hidden;">
                         <div id="user-display-email" style="font-size:12px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">User</div>
-                        <div style="font-size:9px; color:var(--p); font-weight:bold;">ENCRYPTION READY</div>
+                        <div style="font-size:9px; color:var(--p); font-weight:bold;">3D SYNC ACTIVE</div>
                     </div>
                     <button onclick="logout()" style="background:none; border: 1px solid #fb7185; color:#fb7185; font-size:9px; padding:4px 8px; border-radius:8px; cursor:pointer;">EXIT</button>
                 </div>
@@ -77,6 +76,10 @@
                 <input id="deviceName" placeholder="👤 Identity (e.g. Hyderabad_Node)">
                 <textarea id="textInput" placeholder="Paste sensitive data..."></textarea>
                 
+                <button class="btn-p btn-paste" onclick="autoPasteAndSend()">
+                    📋 Paste & Quick Sync
+                </button>
+
                 <div style="display:flex; gap:10px; margin-bottom:12px; align-items:center;">
                     <div style="flex:1;">
                         <small style="color:var(--p); display:block; margin-bottom:5px;">⏳ Timer (Secs)</small>
@@ -88,9 +91,7 @@
                     </label>
                 </div>
 
-                <button class="btn-p btn-auto" onclick="autoPasteAndSend()">📋 Paste & Sync</button>
-                <button class="btn-p" onclick="sendData()">⚡ Sync Manual</button>
-                
+                <button class="btn-p" onclick="sendData()">Encrypt & Push</button>
                 <div id="otpDisplay" style="text-align:center; color:#fb7185; font-weight:bold; margin-top:15px; font-family: monospace; font-size: 20px;"></div>
             </div>
         </div>
@@ -102,29 +103,75 @@
     </div>
 
 <script>
-    // --- 3D BACKGROUND ---
+    // --- 3D BACKGROUND ANIMATION ---
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let w, h, points = [];
+    const numPoints = 100, speed = 2;
+
     function init3D() {
         w = canvas.width = window.innerWidth;
         h = canvas.height = window.innerHeight;
         points = [];
-        for (let i = 0; i < 100; i++) points.push({ x: Math.random() * w - w / 2, y: Math.random() * h - h / 2, z: Math.random() * w });
+        for (let i = 0; i < numPoints; i++) {
+            points.push({ x: Math.random() * w - w / 2, y: Math.random() * h - h / 2, z: Math.random() * w });
+        }
     }
+
     function animate3D() {
-        ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h);
-        for (let p of points) {
-            p.z -= 2; if (p.z <= 0) p.z = w;
-            let size = 300 / p.z, px = p.x * size + w / 2, py = p.y * size + h / 2;
-            ctx.beginPath(); ctx.arc(px, py, size * 1.5, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(56, 189, 248, ${1 - p.z / w})`; ctx.fill();
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, w, h);
+        for (let i = 0; i < points.length; i++) {
+            let p = points[i];
+            p.z -= speed;
+            if (p.z <= 0) p.z = w;
+            let size = 300 / p.z;
+            let px = p.x * size + w / 2;
+            let py = p.y * size + h / 2;
+            ctx.beginPath();
+            ctx.arc(px, py, size * 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(56, 189, 248, ${1 - p.z / w})`;
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            ctx.lineTo(w/2, h/2);
+            ctx.strokeStyle = `rgba(56, 189, 248, ${(1 - p.z / w) * 0.15})`;
+            ctx.stroke();
         }
         requestAnimationFrame(animate3D);
     }
-    window.addEventListener('resize', init3D); init3D(); animate3D();
+    window.addEventListener('resize', init3D);
+    init3D();
+    animate3D();
 
-    // --- FIREBASE & CORE ---
+    // --- IDENTITY & UI HELPERS ---
+    function stringToColor(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        let color = '#';
+        for (let i = 0; i < 3; i++) color += ('00' + ((hash >> (i * 8)) & 0xFF).toString(16)).substr(-2);
+        return color;
+    }
+
+    function togglePassword() {
+        const p = document.getElementById('pass');
+        p.type = p.type === 'password' ? 'text' : 'password';
+    }
+
+    // --- AUTO PASTE FEATURE ---
+    async function autoPasteAndSend() {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) {
+                document.getElementById("textInput").value = text;
+                sendData();
+            }
+        } catch (err) {
+            alert("Please allow Clipboard Access in your browser settings to use Quick Sync.");
+        }
+    }
+
+    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
         apiKey: "AIzaSyDRsNoO7wS4tY9G_VFwRTsTDWwHaYbJGl4",
         authDomain: "ghosttype-67c57.firebaseapp.com",
@@ -137,27 +184,12 @@
     const KEY = "GHOST_ULTRA_2026_KEY";
     const sound = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
 
-    // --- AUTH HELPERS ---
     let isLogin = true;
-    function stringToColor(str) {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
-        let color = '#';
-        for (let i = 0; i < 3; i++) color += ('00' + ((hash >> (i * 8)) & 0xFF).toString(16)).substr(-2);
-        return color;
-    }
-    function togglePassword() {
-        const p = document.getElementById('pass');
-        p.type = p.type === 'password' ? 'text' : 'password';
-    }
-    function toggleMode() {
-        isLogin = !isLogin;
-        document.querySelector('#auth-container h1').innerText = isLogin ? "GhostType" : "Register Node";
-    }
+    function toggleMode() { isLogin = !isLogin; document.querySelector('#auth-container h1').innerText = isLogin ? "GhostType" : "Register Node"; }
     function handleAuth() {
         const e = document.getElementById('email').value, p = document.getElementById('pass').value;
-        if(isLogin) auth.signInWithEmailAndPassword(e, p).catch(alert);
-        else auth.createUserWithEmailAndPassword(e, p).catch(alert);
+        if(isLogin) auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
+        else auth.createUserWithEmailAndPassword(e, p).catch(err => alert(err.message));
     }
     function logout() { auth.signOut().then(() => location.reload()); }
 
@@ -174,23 +206,10 @@
         }
     });
 
-    // --- APP LOGIC ---
     function init() {
         document.getElementById("deviceName").value = localStorage.getItem('gName') || "";
         db.on("child_added", snap => render(snap.key, snap.val()));
         db.on("child_removed", snap => { document.getElementById(`msg-${snap.key}`)?.remove(); });
-    }
-
-    async function autoPasteAndSend() {
-        try {
-            const text = await navigator.clipboard.readText();
-            if (text) {
-                document.getElementById("textInput").value = text;
-                sendData();
-            }
-        } catch (err) {
-            alert("Please allow clipboard permissions in your browser settings!");
-        }
     }
 
     function sendData() {
@@ -222,16 +241,16 @@
         
         let html = `
             <div class="card-header">
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <div style="width:10px; height:10px; border-radius:50%; background:${data.senderColor}"></div>
-                    <div>
+                <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
+                    <div style="width:10px; height:10px; flex-shrink:0; border-radius:50%; background:${data.senderColor}"></div>
+                    <div style="overflow:hidden;">
                         <small style="color:var(--p); font-weight:bold; display:block;">${data.dev}</small>
-                        <small style="font-size:9px; opacity:0.5;">${data.sender}</small>
+                        <small style="font-size:9px; opacity:0.5; display:block;">${data.sender}</small>
                     </div>
                 </div>
                 <span class="trash-btn" onclick="db.child('${id}').remove()">🗑️</span>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin: 0 0 10px 18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin: -5px 0 10px 18px;">
                 <div style="font-size:9px; opacity:0.6;">${data.time}</div>
                 <span id="time-txt-${id}" style="font-size:10px; color:var(--s); font-family:monospace; font-weight:bold;"></span>
             </div>
@@ -242,7 +261,7 @@
                 <div class="bar-wrap"><div class="bar" id="bar-${id}"></div></div>
                 <div id="l-${id}" style="margin-top:10px; display:flex; gap:10px;">
                     <input id="i-${id}" placeholder="OTP" style="margin:0; width:80px; padding:8px;">
-                    <button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" style="padding:8px; background:var(--s); color:white; border:none; border-radius:10px; cursor:pointer; font-size:11px; font-weight:bold;">Unlock</button>
+                    <button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" style="padding:8px; background:var(--s); color:white; border:none; border-radius:10px; cursor:pointer; font-size:11px;">Unlock</button>
                 </div>
                 <div id="s-${id}" class="card-content" style="display:none; color:var(--p); font-weight:bold;"></div>
             `;
@@ -262,8 +281,8 @@
             if (diff <= 0) { clearInterval(itv); db.child(id).remove(); return; }
             const totalSeconds = Math.floor(diff / 1000);
             const ms = Math.floor(diff % 1000);
-            const b = document.getElementById(`bar-${id}`); 
-            if (b) b.style.width = (diff / (dur * 1000) * 100) + "%";
+            const bar = document.getElementById(`bar-${id}`); 
+            if (bar) bar.style.width = (diff / (dur * 1000) * 100) + "%";
             const timeDisplay = document.getElementById(`time-txt-${id}`);
             if (timeDisplay) timeDisplay.innerText = `${totalSeconds}:${ms.toString().padStart(3, '0')}s`;
         }, 50);
@@ -276,7 +295,6 @@
             document.getElementById(`s-${id}`).innerText = dec;
             document.getElementById(`s-${id}`).style.display="block";
             navigator.clipboard.writeText(dec);
-            alert("Decrypted & Unified with Clipboard!");
         } else { alert("Wrong OTP!"); }
     };
 </script>
