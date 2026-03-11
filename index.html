@@ -15,14 +15,12 @@
         :root { --p: #38bdf8; --s: #f472b6; --bg: #020617; --g: rgba(255,255,255,0.03); --b: rgba(255,255,255,0.08); --t: #f8fafc; }
         
         body { background: #000; color: var(--t); font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
-        
-        /* --- 3D BACKGROUND CANVAS --- */
         #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
         .container { width: 100%; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 20px; padding: 20px; box-sizing: border-box; }
-        @media (min-width: 992px) { .container { grid-template-columns: 400px 1fr; padding: 40px; gap: 40px; } .sticky-panel { position: sticky; top: 40px; } }
+        @media (min-width: 992px) { .container { grid-template-columns: 420px 1fr; padding: 40px; gap: 40px; } .sticky-panel { position: sticky; top: 40px; } }
 
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(25px); border: 1px solid var(--b); border-radius: 28px; padding: clamp(15px, 5vw, 30px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); }
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(25px); border: 1px solid var(--b); border-radius: 28px; padding: clamp(15px, 5vw, 30px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); }
 
         .user-profile { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 20px; border: 1px solid var(--b); }
         .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-transform: uppercase; font-size: 18px; flex-shrink: 0; }
@@ -32,7 +30,10 @@
 
         input, textarea { width: 100%; background: rgba(0,0,0,0.6); border: 1px solid var(--b); color: var(--t); border-radius: 14px; padding: 14px; margin-bottom: 12px; box-sizing: border-box; font-size: 14px; transition: 0.3s; }
         input:focus, textarea:focus { border-color: var(--p); box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); outline: none; }
-        .btn-p { background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; border: none; padding: 16px; border-radius: 14px; font-weight: 900; width: 100%; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .btn-p { background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; border: none; padding: 16px; border-radius: 14px; font-weight: 900; width: 100%; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .btn-p:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(56, 189, 248, 0.3); }
+        .btn-paste { background: linear-gradient(135deg, #4ade80, #22c55e); }
 
         .msg-card { background: rgba(15, 23, 42, 0.9); border: 1px solid var(--b); padding: 20px; margin-bottom: 20px; border-radius: 24px; position: relative; max-width: 100%; overflow: hidden; }
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; margin-bottom: 10px; }
@@ -51,13 +52,13 @@
     <div id="auth-container" class="glass animate__animated animate__zoomIn" style="width: 100%; max-width: 400px; margin: 15vh auto; text-align: center;">
         <h1 style="color: var(--p); font-size: 28px; margin:0 0 10px 0;">GhostType</h1>
         <p style="font-size: 13px; color: #64748b; margin-bottom: 25px;">3D Secure Node Access</p>
-        <input type="email" id="email" placeholder="Email">
+        <input type="email" id="email" placeholder="Institutional Email">
         <div class="pass-wrapper">
-            <input type="password" id="pass" placeholder="Password">
+            <input type="password" id="pass" placeholder="Security Key">
             <span class="toggle-pass" onclick="togglePassword()">👁️</span>
         </div>
         <button class="btn-p" onclick="handleAuth()">Enter Terminal</button>
-        <p style="font-size: 11px; margin-top: 15px; cursor: pointer; opacity: 0.6;" onclick="toggleMode()">Request Registration</p>
+        <p style="font-size: 11px; margin-top: 15px; cursor: pointer; opacity: 0.6;" onclick="toggleMode()">Initialize Node Registration</p>
     </div>
 
     <div id="app-container" class="container" style="display: none;">
@@ -67,17 +68,21 @@
                     <div id="user-avatar" class="avatar">?</div>
                     <div style="flex:1; overflow:hidden;">
                         <div id="user-display-email" style="font-size:12px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">User</div>
-                        <div style="font-size:9px; color:var(--p); font-weight:bold;">3D SYNC ACTIVE</div>
+                        <div style="font-size:9px; color:var(--p); font-weight:bold;">3D ENCRYPTION ACTIVE</div>
                     </div>
-                    <button onclick="logout()" style="background:none; border: 1px solid #fb7185; color:#fb7185; font-size:9px; padding:4px 8px; border-radius:8px; cursor:pointer;">EXIT</button>
+                    <button onclick="logout()" style="background:none; border: 1px solid #fb7185; color:#fb7185; font-size:9px; padding:4px 8px; border-radius:8px; cursor:pointer;">DISCONNECT</button>
                 </div>
 
-                <input id="deviceName" placeholder="👤 Identity (e.g. Hyderabad_Node)">
-                <textarea id="textInput" placeholder="Paste sensitive data..."></textarea>
+                <input id="deviceName" placeholder="👤 Device ID (e.g. Uday_Laptop)">
+                <textarea id="textInput" placeholder="Enter sensitive data for relay..."></textarea>
                 
+                <button class="btn-p btn-paste" onclick="autoPasteAndSend()">
+                    📋 Paste & Quick Sync
+                </button>
+
                 <div style="display:flex; gap:10px; margin-bottom:12px; align-items:center;">
                     <div style="flex:1;">
-                        <small style="color:var(--p); display:block; margin-bottom:5px;">⏳ Timer (Secs)</small>
+                        <small style="color:var(--p); display:block; margin-bottom:5px;">⏳ TTL (Secs)</small>
                         <input type="number" id="timerInput" value="60" style="margin:0;">
                     </div>
                     <label style="flex:0.5; display:flex; flex-direction:column; align-items:center;">
@@ -86,62 +91,47 @@
                     </label>
                 </div>
 
-                <button class="btn-p" onclick="sendData()">Encrypt & Push</button>
+                <button class="btn-p" onclick="sendData()">Encrypt & Push to Cloud</button>
                 <div id="otpDisplay" style="text-align:center; color:#fb7185; font-weight:bold; margin-top:15px; font-family: monospace; font-size: 20px;"></div>
             </div>
         </div>
 
         <div class="history-section">
-            <h2 style="margin: 0 0 20px 0; font-size: 20px; color: var(--p);">3D Relay Stream</h2>
+            <h2 style="margin: 0 0 20px 0; font-size: 20px; color: var(--p);">Secure Data Stream</h2>
             <div id="msgs"></div>
         </div>
     </div>
 
 <script>
-    // --- 3D BACKGROUND ANIMATION ---
+    // --- 3D ENVIRONMENT ---
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
-    let w, h;
-    let points = [];
-    const numPoints = 100;
-    const speed = 2;
+    let w, h, points = [];
+    const numPoints = 100, speed = 2;
 
     function init3D() {
         w = canvas.width = window.innerWidth;
         h = canvas.height = window.innerHeight;
         points = [];
         for (let i = 0; i < numPoints; i++) {
-            points.push({
-                x: Math.random() * w - w / 2,
-                y: Math.random() * h - h / 2,
-                z: Math.random() * w
-            });
+            points.push({ x: Math.random() * w - w / 2, y: Math.random() * h - h / 2, z: Math.random() * w });
         }
     }
 
     function animate3D() {
         ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, w, h);
-        
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
-        ctx.lineWidth = 1;
-
         for (let i = 0; i < points.length; i++) {
             let p = points[i];
             p.z -= speed;
-
             if (p.z <= 0) p.z = w;
-
             let size = 300 / p.z;
             let px = p.x * size + w / 2;
             let py = p.y * size + h / 2;
-
             ctx.beginPath();
             ctx.arc(px, py, size * 1.5, 0, Math.PI * 2);
             ctx.fillStyle = `rgba(56, 189, 248, ${1 - p.z / w})`;
             ctx.fill();
-            
-            // Draw grid lines to center
             ctx.beginPath();
             ctx.moveTo(px, py);
             ctx.lineTo(w/2, h/2);
@@ -154,7 +144,20 @@
     init3D();
     animate3D();
 
-    // --- IDENTITY HELPERS ---
+    // --- PASTE BRIDGE ---
+    async function autoPasteAndSend() {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) {
+                document.getElementById("textInput").value = text;
+                sendData();
+            }
+        } catch (err) {
+            alert("Clipboard access denied. Please allow permissions in your browser address bar.");
+        }
+    }
+
+    // --- CRYPTO & UI HELPERS ---
     function stringToColor(str) {
         let hash = 0;
         for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -168,7 +171,7 @@
         p.type = p.type === 'password' ? 'text' : 'password';
     }
 
-    // --- FIREBASE CONFIG ---
+    // --- FIREBASE SYNC ---
     const firebaseConfig = {
         apiKey: "AIzaSyDRsNoO7wS4tY9G_VFwRTsTDWwHaYbJGl4",
         authDomain: "ghosttype-67c57.firebaseapp.com",
@@ -183,6 +186,7 @@
 
     let isLogin = true;
     function toggleMode() { isLogin = !isLogin; document.querySelector('#auth-container h1').innerText = isLogin ? "GhostType" : "Register Node"; }
+    
     function handleAuth() {
         const e = document.getElementById('email').value, p = document.getElementById('pass').value;
         if(isLogin) auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
@@ -211,7 +215,7 @@
 
     function sendData() {
         const txt = document.getElementById("textInput").value.trim();
-        const dev = document.getElementById("deviceName").value || "Node";
+        const dev = document.getElementById("deviceName").value || "Phantom_Node";
         const sec = document.getElementById("isSec").checked;
         const dur = parseInt(document.getElementById("timerInput").value) || 60;
         
@@ -249,7 +253,7 @@
                 <span class="trash-btn" onclick="db.child('${id}').remove()">🗑️</span>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin: -5px 0 10px 18px;">
-                <div style="font-size:9px; opacity:0.6;">Time: ${data.time}</div>
+                <div style="font-size:9px; opacity:0.6;">Relay Time: ${data.time}</div>
                 <span id="time-txt-${id}" style="font-size:10px; color:var(--s); font-family:monospace; font-weight:bold;"></span>
             </div>
         `;
@@ -259,7 +263,7 @@
                 <div class="bar-wrap"><div class="bar" id="bar-${id}"></div></div>
                 <div id="l-${id}" style="margin-top:10px; display:flex; gap:10px;">
                     <input id="i-${id}" placeholder="OTP" style="margin:0; width:80px; padding:8px;">
-                    <button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" style="padding:8px; background:var(--s); color:white; border:none; border-radius:10px; cursor:pointer; font-size:11px;">Unlock</button>
+                    <button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" style="padding:8px; background:var(--s); color:white; border:none; border-radius:10px; cursor:pointer; font-size:11px; font-weight:bold;">DECRYPT</button>
                 </div>
                 <div id="s-${id}" class="card-content" style="display:none; color:var(--p); font-weight:bold;"></div>
             `;
@@ -276,15 +280,11 @@
         const itv = setInterval(() => {
             const now = Date.now();
             const diff = exp - now;
-            if (diff <= 0) {
-                clearInterval(itv);
-                db.child(id).remove();
-                return;
-            }
+            if (diff <= 0) { clearInterval(itv); db.child(id).remove(); return; }
             const totalSeconds = Math.floor(diff / 1000);
             const ms = Math.floor(diff % 1000);
-            const bar = document.getElementById(`bar-${id}`); 
-            if (bar) bar.style.width = (diff / (dur * 1000) * 100) + "%";
+            const b = document.getElementById(`bar-${id}`); 
+            if (b) b.style.width = (diff / (dur * 1000) * 100) + "%";
             const timeDisplay = document.getElementById(`time-txt-${id}`);
             if (timeDisplay) timeDisplay.innerText = `${totalSeconds}:${ms.toString().padStart(3, '0')}s`;
         }, 50);
@@ -297,7 +297,7 @@
             document.getElementById(`s-${id}`).innerText = dec;
             document.getElementById(`s-${id}`).style.display="block";
             navigator.clipboard.writeText(dec);
-        } else { alert("Wrong OTP!"); }
+        } else { alert("Unauthorized access: Invalid OTP"); }
     };
 </script>
 </body>
