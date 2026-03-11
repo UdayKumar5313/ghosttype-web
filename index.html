@@ -3,253 +3,302 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostType Platinum | Fixed v7.1</title>
+    <title>GhostType Ultra | 3D Platinum Master</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     
     <style>
-        :root { 
-            --p: #00f2ff; --s: #ff007a; --bg: #020617; 
-            --glass: rgba(10, 15, 30, 0.85);
-            --border: rgba(0, 242, 255, 0.2);
-            --font: 'JetBrains Mono', monospace;
-        }
+        :root { --p: #38bdf8; --s: #f472b6; --bg: #020617; --g: rgba(255,255,255,0.03); --b: rgba(255,255,255,0.08); --t: #f8fafc; }
         
-        body { 
-            background: #000; color: #e2e8f0; font-family: var(--font);
-            margin: 0; overflow-x: hidden; min-height: 100vh;
-        }
-
-        #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
-
-        .container { 
-            max-width: 1200px; margin: 0 auto; display: grid; 
-            grid-template-columns: 1fr; gap: 30px; padding: 20px;
-        }
+        body { background: #000; color: var(--t); font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
         
-        @media (min-width: 1024px) { 
-            .container { grid-template-columns: 380px 1fr; padding: 40px 20px; }
-            .sticky-panel { position: sticky; top: 20px; }
-        }
+        /* --- 3D BACKGROUND CANVAS --- */
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
-        .glass { 
-            background: var(--glass); backdrop-filter: blur(20px);
-            border: 1px solid var(--border); border-radius: 15px;
-            padding: 25px; box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 20px; padding: 20px; box-sizing: border-box; }
+        @media (min-width: 992px) { .container { grid-template-columns: 400px 1fr; padding: 40px; gap: 40px; } .sticky-panel { position: sticky; top: 40px; } }
 
-        input, textarea {
-            width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border);
-            color: #fff; border-radius: 8px; padding: 12px; margin-bottom: 12px;
-            font-family: var(--font); box-sizing: border-box;
-        }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(25px); border: 1px solid var(--b); border-radius: 28px; padding: clamp(15px, 5vw, 30px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); }
 
-        .btn-p {
-            background: linear-gradient(90deg, var(--p), #7000ff);
-            color: #000; border: none; padding: 14px; border-radius: 8px;
-            font-weight: 700; width: 100%; cursor: pointer; transition: 0.2s;
-        }
+        .user-profile { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 20px; border: 1px solid var(--b); }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-transform: uppercase; font-size: 18px; flex-shrink: 0; }
+        
+        .pass-wrapper { position: relative; width: 100%; margin-bottom: 12px; }
+        .toggle-pass { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.6; }
 
-        .msg-card {
-            background: rgba(15, 23, 42, 0.9); border-left: 3px solid var(--p);
-            padding: 15px; margin-bottom: 15px; border-radius: 0 10px 10px 0;
-            animation: fadeInRight 0.3s ease;
-        }
+        input, textarea { width: 100%; background: rgba(0,0,0,0.6); border: 1px solid var(--b); color: var(--t); border-radius: 14px; padding: 14px; margin-bottom: 12px; box-sizing: border-box; font-size: 14px; transition: 0.3s; }
+        input:focus, textarea:focus { border-color: var(--p); box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); outline: none; }
+        .btn-p { background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; border: none; padding: 16px; border-radius: 14px; font-weight: 900; width: 100%; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
 
-        .progress-bar { height: 2px; background: var(--s); width: 100%; transition: width 0.1s linear; margin: 10px 0; }
-        .panic-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; }
+        .msg-card { background: rgba(15, 23, 42, 0.9); border: 1px solid var(--b); padding: 20px; margin-bottom: 20px; border-radius: 24px; position: relative; max-width: 100%; overflow: hidden; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; margin-bottom: 10px; }
+        .card-content { font-size: 14px; line-height: 1.6; padding-left: 18px; word-break: break-word; overflow-wrap: break-word; white-space: pre-wrap; }
+        .trash-btn { flex-shrink: 0; cursor: pointer; opacity: 0.3; transition: 0.2s; font-size: 18px; }
+        .trash-btn:hover { opacity: 1; color: #fb7185; }
+
+        .bar-wrap { height: 4px; background: rgba(0,0,0,0.5); width: 100%; border-radius: 10px; margin-top: 15px; overflow: hidden; }
+        .bar { height: 100%; background: var(--s); width: 100%; transition: width 0.05s linear; }
     </style>
 </head>
 <body>
 
     <canvas id="bg-canvas"></canvas>
-    <div id="panic" class="panic-overlay"><h1 style="color:#222">ENCRYPTION_HALTED</h1></div>
 
-    <div id="auth-container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
-        <div class="glass animate__animated animate__zoomIn" style="width: 350px; text-align: center;">
-            <h2 id="auth-title" style="color: var(--p);">GHOST_LOGIN</h2>
-            <input type="email" id="email" placeholder="Email">
+    <div id="auth-container" class="glass animate__animated animate__zoomIn" style="width: 100%; max-width: 400px; margin: 15vh auto; text-align: center;">
+        <h1 style="color: var(--p); font-size: 28px; margin:0 0 10px 0;">GhostType</h1>
+        <p style="font-size: 13px; color: #64748b; margin-bottom: 25px;">3D Secure Node Access</p>
+        <input type="email" id="email" placeholder="Email">
+        <div class="pass-wrapper">
             <input type="password" id="pass" placeholder="Password">
-            <button class="btn-p" onclick="handleAuth()">INITIALIZE</button>
-            <p onclick="toggleMode()" style="font-size: 10px; cursor: pointer; margin-top: 15px; color: var(--s);">TOGGLE REGISTRATION</p>
+            <span class="toggle-pass" onclick="togglePassword()">👁️</span>
         </div>
+        <button class="btn-p" onclick="handleAuth()">Enter Terminal</button>
+        <p style="font-size: 11px; margin-top: 15px; cursor: pointer; opacity: 0.6;" onclick="toggleMode()">Request Registration</p>
     </div>
 
     <div id="app-container" class="container" style="display: none;">
         <div class="sticky-panel">
-            <div class="glass">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <div id="status" style="width:8px; height:8px; background:#10b981; border-radius:50%;"></div>
-                    <small id="user-display" style="color:var(--p); font-size:10px;"></small>
-                    <button onclick="logout()" style="color:var(--s); background:none; border:1px solid; font-size:9px; cursor:pointer;">EXIT</button>
+            <div class="glass animate__animated animate__fadeInLeft">
+                <div class="user-profile">
+                    <div id="user-avatar" class="avatar">?</div>
+                    <div style="flex:1; overflow:hidden;">
+                        <div id="user-display-email" style="font-size:12px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">User</div>
+                        <div style="font-size:9px; color:var(--p); font-weight:bold;">3D SYNC ACTIVE</div>
+                    </div>
+                    <button onclick="logout()" style="background:none; border: 1px solid #fb7185; color:#fb7185; font-size:9px; padding:4px 8px; border-radius:8px; cursor:pointer;">EXIT</button>
                 </div>
-                <input id="deviceName" placeholder="NODE_NAME">
-                <textarea id="textInput" rows="3" placeholder="PAYLOAD..."></textarea>
-                <div style="display:flex; gap:10px;">
-                    <input type="number" id="timerInput" value="60" title="TTL (sec)">
-                    <label style="font-size:9px;"><input type="checkbox" id="isSec"> OTP_ENCRYPT</label>
+
+                <input id="deviceName" placeholder="👤 Identity (e.g. Hyderabad_Node)">
+                <textarea id="textInput" placeholder="Paste sensitive data..."></textarea>
+                
+                <div style="display:flex; gap:10px; margin-bottom:12px; align-items:center;">
+                    <div style="flex:1;">
+                        <small style="color:var(--p); display:block; margin-bottom:5px;">⏳ Timer (Secs)</small>
+                        <input type="number" id="timerInput" value="60" style="margin:0;">
+                    </div>
+                    <label style="flex:0.5; display:flex; flex-direction:column; align-items:center;">
+                        <small style="color:var(--p); margin-bottom:5px;">🔒 OTP</small>
+                        <input type="checkbox" id="isSec" style="width:20px; height:20px;">
+                    </label>
                 </div>
-                <button class="btn-p" onclick="sendData()">PUSH_TO_RELAY</button>
-                <div id="otpDisplay" style="text-align:center; font-size:24px; color:var(--s); margin-top:10px;"></div>
+
+                <button class="btn-p" onclick="sendData()">Encrypt & Push</button>
+                <div id="otpDisplay" style="text-align:center; color:#fb7185; font-weight:bold; margin-top:15px; font-family: monospace; font-size: 20px;"></div>
             </div>
         </div>
 
-        <div id="msgs"></div>
+        <div class="history-section">
+            <h2 style="margin: 0 0 20px 0; font-size: 20px; color: var(--p);">3D Relay Stream</h2>
+            <div id="msgs"></div>
+        </div>
     </div>
 
 <script>
-    // --- 3D Background ---
+    // --- 3D BACKGROUND ANIMATION ---
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
-    let w, h, stars = [];
-    const initBG = () => {
+    let w, h;
+    let points = [];
+    const numPoints = 100;
+    const speed = 2;
+
+    function init3D() {
         w = canvas.width = window.innerWidth;
         h = canvas.height = window.innerHeight;
-        stars = Array(150).fill().map(() => ({ x: Math.random()*w-w/2, y: Math.random()*h-h/2, z: Math.random()*w }));
-    };
-    const drawBG = () => {
-        ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h);
-        stars.forEach(s => {
-            s.z -= 3; if(s.z <= 0) s.z = w;
-            const x = s.x*(w/s.z)+w/2, y = s.y*(h/s.z)+h/2;
-            ctx.fillStyle = `rgba(0,242,255,${1-s.z/w})`;
-            ctx.beginPath(); ctx.arc(x,y,(1-s.z/w)*3,0,Math.PI*2); ctx.fill();
-        });
-        requestAnimationFrame(drawBG);
-    };
-    window.onresize = initBG; initBG(); drawBG();
+        points = [];
+        for (let i = 0; i < numPoints; i++) {
+            points.push({
+                x: Math.random() * w - w / 2,
+                y: Math.random() * h - h / 2,
+                z: Math.random() * w
+            });
+        }
+    }
 
-    // --- Firebase Logic ---
+    function animate3D() {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, w, h);
+        
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+        ctx.lineWidth = 1;
+
+        for (let i = 0; i < points.length; i++) {
+            let p = points[i];
+            p.z -= speed;
+
+            if (p.z <= 0) p.z = w;
+
+            let size = 300 / p.z;
+            let px = p.x * size + w / 2;
+            let py = p.y * size + h / 2;
+
+            ctx.beginPath();
+            ctx.arc(px, py, size * 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(56, 189, 248, ${1 - p.z / w})`;
+            ctx.fill();
+            
+            // Draw grid lines to center
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            ctx.lineTo(w/2, h/2);
+            ctx.strokeStyle = `rgba(56, 189, 248, ${(1 - p.z / w) * 0.15})`;
+            ctx.stroke();
+        }
+        requestAnimationFrame(animate3D);
+    }
+    window.addEventListener('resize', init3D);
+    init3D();
+    animate3D();
+
+    // --- IDENTITY HELPERS ---
+    function stringToColor(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        let color = '#';
+        for (let i = 0; i < 3; i++) color += ('00' + ((hash >> (i * 8)) & 0xFF).toString(16)).substr(-2);
+        return color;
+    }
+
+    function togglePassword() {
+        const p = document.getElementById('pass');
+        p.type = p.type === 'password' ? 'text' : 'password';
+    }
+
+    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
         apiKey: "AIzaSyDRsNoO7wS4tY9G_VFwRTsTDWwHaYbJGl4",
         authDomain: "ghosttype-67c57.firebaseapp.com",
         databaseURL: "https://ghosttype-67c57-default-rtdb.asia-southeast1.firebasedatabase.app",
         projectId: "ghosttype-67c57"
     };
-    
-    // Initialize
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.database().ref("v8_platinum_fixed");
-    const KEY = "PLATINUM_2026_SECURE";
+    const db = firebase.database().ref("v7_master_sync");
+    const KEY = "GHOST_ULTRA_2026_KEY";
+    const sound = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
 
     let isLogin = true;
-    const toggleMode = () => { isLogin = !isLogin; document.getElementById('auth-title').innerText = isLogin ? "GHOST_LOGIN" : "REGISTER_NODE"; };
-    
-    const handleAuth = () => {
+    function toggleMode() { isLogin = !isLogin; document.querySelector('#auth-container h1').innerText = isLogin ? "GhostType" : "Register Node"; }
+    function handleAuth() {
         const e = document.getElementById('email').value, p = document.getElementById('pass').value;
         if(isLogin) auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
         else auth.createUserWithEmailAndPassword(e, p).catch(err => alert(err.message));
-    };
-
-    const logout = () => auth.signOut().then(() => location.reload());
+    }
+    function logout() { auth.signOut().then(() => location.reload()); }
 
     auth.onAuthStateChanged(user => {
-        if(user) {
+        if (user) {
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('app-container').style.display = 'grid';
-            document.getElementById('user-display').innerText = user.email.split('@')[0].toUpperCase();
-            initApp();
+            const userColor = stringToColor(user.email);
+            const avatar = document.getElementById('user-avatar');
+            avatar.style.backgroundColor = userColor;
+            avatar.innerText = user.email.charAt(0);
+            document.getElementById('user-display-email').innerText = user.email;
+            init();
         }
     });
 
-    function initApp() {
-        document.getElementById('deviceName').value = localStorage.getItem('gNodeName') || "NODE_01";
+    function init() {
+        document.getElementById("deviceName").value = localStorage.getItem('gName') || "";
         db.on("child_added", snap => render(snap.key, snap.val()));
-        db.on("child_removed", snap => document.getElementById(`msg-${snap.key}`)?.remove());
+        db.on("child_removed", snap => { document.getElementById(`msg-${snap.key}`)?.remove(); });
     }
 
     function sendData() {
-        const txt = document.getElementById('textInput').value.trim();
+        const txt = document.getElementById("textInput").value.trim();
+        const dev = document.getElementById("deviceName").value || "Node";
+        const sec = document.getElementById("isSec").checked;
+        const dur = parseInt(document.getElementById("timerInput").value) || 60;
+        
         if(!txt) return;
-        const dev = document.getElementById('deviceName').value || "NODE";
-        const sec = document.getElementById('isSec').checked;
-        const dur = parseInt(document.getElementById('timerInput').value) || 60;
-        
-        localStorage.setItem('gNodeName', dev);
-        const enc = CryptoJS.AES.encrypt(txt, KEY).toString();
-        const otp = sec ? Math.floor(1000 + Math.random()*8999).toString() : null;
-        const exp = Date.now() + (dur * 1000);
+        localStorage.setItem('gName', dev);
 
-        if(sec) document.getElementById('otpDisplay').innerText = `OTP: ${otp}`;
-        
-        db.push({ dev, payload: enc, secure: sec, otp, exp, dur, sender: auth.currentUser.email });
-        document.getElementById('textInput').value = "";
+        const enc = CryptoJS.AES.encrypt(txt, KEY).toString();
+        let otp = sec ? Math.floor(100000 + Math.random()*900000).toString() : null;
+        let exp = sec ? Date.now() + (dur * 1000) : null;
+
+        if(sec) document.getElementById("otpDisplay").innerText = "OTP: " + otp;
+        db.push({ 
+            dev, payload: enc, secure: sec, otp, exp, duration: dur, 
+            sender: auth.currentUser.email, senderColor: stringToColor(auth.currentUser.email),
+            time: new Date().toLocaleTimeString() 
+        });
+        document.getElementById("textInput").value = "";
     }
 
     function render(id, data) {
-        const card = document.createElement('div');
+        sound.play().catch(()=>{});
+        const card = document.createElement("div");
+        card.className = "msg-card animate__animated animate__fadeInUp";
         card.id = `msg-${id}`;
-        card.className = "msg-card";
         
-        let bodyHtml = "";
-        if(data.secure) {
-            bodyHtml = `
-                <div id="lock-${id}">
-                    <div style="font-size:10px; color:var(--s); margin-bottom:10px;">ENCRYPTED_NODE_DATA</div>
-                    <div style="display:flex; gap:10px;">
-                        <input id="otp-in-${id}" placeholder="OTP" style="margin:0; padding:5px; height:30px;">
-                        <button class="btn-p" style="padding:0 10px; width:auto; height:30px; font-size:10px;" onclick="unlock('${id}','${data.otp}','${data.payload}')">OPEN</button>
+        let html = `
+            <div class="card-header">
+                <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
+                    <div style="width:10px; height:10px; flex-shrink:0; border-radius:50%; background:${data.senderColor}"></div>
+                    <div style="overflow:hidden;">
+                        <small style="color:var(--p); font-weight:bold; display:block;">${data.dev}</small>
+                        <small style="font-size:9px; opacity:0.5; display:block; text-overflow:ellipsis; overflow:hidden;">${data.sender}</small>
                     </div>
                 </div>
-                <div id="body-${id}" style="display:none; color:var(--p); font-size:13px; word-break:break-all;"></div>
+                <span class="trash-btn" onclick="db.child('${id}').remove()">🗑️</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin: -5px 0 10px 18px;">
+                <div style="font-size:9px; opacity:0.6;">Time: ${data.time}</div>
+                <span id="time-txt-${id}" style="font-size:10px; color:var(--s); font-family:monospace; font-weight:bold;"></span>
+            </div>
+        `;
+
+        if(data.secure) {
+            html += `
+                <div class="bar-wrap"><div class="bar" id="bar-${id}"></div></div>
+                <div id="l-${id}" style="margin-top:10px; display:flex; gap:10px;">
+                    <input id="i-${id}" placeholder="OTP" style="margin:0; width:80px; padding:8px;">
+                    <button onclick="unlock('${id}','${data.otp}','${data.payload}',${data.exp})" style="padding:8px; background:var(--s); color:white; border:none; border-radius:10px; cursor:pointer; font-size:11px;">Unlock</button>
+                </div>
+                <div id="s-${id}" class="card-content" style="display:none; color:var(--p); font-weight:bold;"></div>
             `;
+            timer(id, data.exp, data.duration);
         } else {
             const dec = CryptoJS.AES.decrypt(data.payload, KEY).toString(CryptoJS.enc.Utf8);
-            bodyHtml = `<div style="font-size:13px; word-break:break-all;">${dec}</div>`;
+            html += `<div class="card-content">${dec}</div>`;
         }
-
-        card.innerHTML = `
-            <div style="display:flex; justify-content:space-between; font-size:9px; color:var(--p); margin-bottom:8px;">
-                <span>ID: ${data.dev}</span>
-                <span onclick="firebase.database().ref('v8_platinum_fixed').child('${id}').remove()" style="cursor:pointer; color:var(--s)">[X]</span>
-            </div>
-            ${bodyHtml}
-            <div class="progress-bar" id="bar-${id}"></div>
-            <div style="font-size:8px; opacity:0.5; text-align:right;" id="time-${id}">--</div>
-        `;
-        document.getElementById('msgs').prepend(card);
-        startTimer(id, data.exp, data.dur);
+        card.innerHTML = html;
+        document.getElementById("msgs").prepend(card);
     }
 
-    function startTimer(id, exp, dur) {
+    function timer(id, exp, dur) {
         const itv = setInterval(() => {
-            const rem = exp - Date.now();
-            const bar = document.getElementById(`bar-${id}`);
-            const txt = document.getElementById(`time-${id}`);
-            if(rem <= 0 || !bar) {
+            const now = Date.now();
+            const diff = exp - now;
+            if (diff <= 0) {
                 clearInterval(itv);
-                if(bar) db.child(id).remove();
+                db.child(id).remove();
                 return;
             }
-            bar.style.width = (rem / (dur * 1000) * 100) + "%";
-            txt.innerText = Math.ceil(rem/1000) + "s";
-        }, 100);
+            const totalSeconds = Math.floor(diff / 1000);
+            const ms = Math.floor(diff % 1000);
+            const bar = document.getElementById(`bar-${id}`); 
+            if (bar) bar.style.width = (diff / (dur * 1000) * 100) + "%";
+            const timeDisplay = document.getElementById(`time-txt-${id}`);
+            if (timeDisplay) timeDisplay.innerText = `${totalSeconds}:${ms.toString().padStart(3, '0')}s`;
+        }, 50);
     }
 
-    // Explicitly attach to window for HTML onclick access
-    window.unlock = (id, otp, pay) => {
-        const input = document.getElementById(`otp-in-${id}`).value;
-        if(input === otp) {
-            try {
-                const dec = CryptoJS.AES.decrypt(pay, KEY).toString(CryptoJS.enc.Utf8);
-                document.getElementById(`lock-${id}`).style.display = "none";
-                const b = document.getElementById(`body-${id}`);
-                b.innerText = dec;
-                b.style.display = "block";
-                navigator.clipboard.writeText(dec);
-            } catch(e) { alert("Decryption Error"); }
-        } else { alert("ACCESS_DENIED"); }
+    window.unlock = (id, otp, pay, exp) => {
+        if(document.getElementById(`i-${id}`).value === otp && Date.now() < exp) {
+            const dec = CryptoJS.AES.decrypt(pay, KEY).toString(CryptoJS.enc.Utf8);
+            document.getElementById(`l-${id}`).style.display="none";
+            document.getElementById(`s-${id}`).innerText = dec;
+            document.getElementById(`s-${id}`).style.display="block";
+            navigator.clipboard.writeText(dec);
+        } else { alert("Wrong OTP!"); }
     };
-
-    // Panic Key
-    window.onkeydown = (e) => { if(e.key === "Escape") { const p = document.getElementById('panic'); p.style.display = p.style.display === "flex" ? "none" : "flex"; } };
 </script>
 </body>
 </html>
